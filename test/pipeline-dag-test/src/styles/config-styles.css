@@ -1,0 +1,96 @@
+.popup-overlay {
+    pointer-events: auto; /* ensures it captures the event */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 150%;
+    height: 60%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    max-width: 90%;
+}
+
+.popup-container h2 {
+    margin-top: 0;
+    font-size: 20px;
+    text-align: center;
+}
+
+.popup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.popup-form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    color: #333;
+}
+
+.popup-form input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.cancel-button {
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 5px 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.cancel-button:hover {
+    background: #e0e0e0;
+}
+
+.save-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.save-button:hover {
+    background: #0056b3;
+}
+
+.delete-button {
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.delete-button:hover {
+    background: darkred;
+}

@@ -1,13 +1,107 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    font-family:
+        source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.resizable-container {
+    position: relative;
+    resize: both; /* Allow resizing */
+    overflow: auto; /* Prevent content overflow */
+}
+
+.resizable-content {
+    width: 100%;
+    height: 100%;
+}
+
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background: gray;
+    cursor: se-resize;
+}
+
+.background-container {
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 1px;
+    padding-bottom: 3px;
+    width: 97%;
+    background-color: white;
+    color: black; /* Text color */
+}
+
+.central-container {
+    margin-bottom: 10px; /* Space between input and other elements */
+}
+
+.file-input {
+    transform: scale(0.8); /* Scale down the file input */
+    cursor: pointer; /* Pointer cursor for better UX */
+    border: none;
+    background-color: transparent;
+}
+
+.file-input::-webkit-file-upload-button {
+    background-color: #007bff; /* Modern blue button */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.file-input::-webkit-file-upload-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.input-text {
+    font-size: 10px; /* Slightly larger font for better readability */
+    color: #555; /* Subtle text color */
+    margin: 5px 0;
+}
+
+.output-text {
+    font-size: 8px; /* Slightly larger font for better readability */
+    color: #888; /* Subtle text color */
+    margin: 5px 0;
+}
+
+.handle {
+    background-color: red; /* Red handle for visibility */
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /* Circular handle */
+    border: 2px solid white; /* Add contrast with a white border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+.placeholder {
+    display: contents;
+}
+
+.placeholder div {
+    background: #eee;
+    width: 80%;
+    height: 10px;
+    margin-bottom: 4px;
+}
+
+.placeholder div:last-child {
+    margin-bottom: 0;
 }

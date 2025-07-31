@@ -1,0 +1,56 @@
+.custom-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9; /* Light background for the node */
+    border: 2px solid #ddd; /* Subtle border */
+    border-radius: 15px; /* Rounded corners */
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    width: 250px; /* Fixed width for the node */
+    text-align: center;
+    font-family: "Arial", sans-serif; /* Modern font */
+}
+
+.input-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9; /* Light background for the node */
+    border: 2px solid #ddd; /* Subtle border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    width: 250px; /* Fixed width for the node */
+    text-align: center;
+    font-family: "Arial", sans-serif; /* Modern font */
+}
+.output-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9; /* Light background for the node */
+    border: 2px solid #ddd; /* Subtle border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    width: 150px; /* Fixed width for the node */
+    text-align: center;
+    font-family: "Arial", sans-serif; /* Modern font */
+}
+.parameter-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9; /* Light background for the node */
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 20px; /* Rounded corners */
+    padding: 0px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    text-align: center;
+    font-family: "Arial", sans-serif; /* Modern font */
+}
