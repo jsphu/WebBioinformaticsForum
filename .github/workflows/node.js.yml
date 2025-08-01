@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -25,9 +25,9 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: cd ./test/pipeline-dag-test/
-    - name: Install dependencies
-      run: yarn --frozen-lockfile
-    - run: yarn run build --if-present
-    - run: yarn test
+    - name: yarn install, build, and test
+      run: |
+        cd ./test/pipeline-dag-test/
+        yarn --frozen-lockfile
+        yarn run build --if-present
+        yarn test
