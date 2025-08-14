@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from uuid import uuid4
+from django.core.exceptions import ValidationError
 
 class PipelineModel(models.Model):
     """Pipeline/Workflow Model, multiple steps of defined processes"""
@@ -73,3 +74,24 @@ class PipelineModel(models.Model):
         ],
         **extra_fields # <<- any other fields can be included here.
     """
+
+    def clean(self):
+        if self.flow_data:
+            # Check required keys exist
+            for key in ['nodes', 'edges']:
+                if key not in self.flow_data:
+                    raise ValidationError(f"flow_data must contain '{key}' field")
+
+            # Validate that nodes/edges are lists
+            if not isinstance(self.flow_data['nodes'], list):
+                raise ValidationError("flow_data['nodes'] must be a list")
+            if not isinstance(self.flow_data['edges'], list):
+                raise ValidationError("flow_data['edges'] must be a list")
+
+    def __str__(self):
+        return f"{self.pipeline_title}"
+
+    class Meta:
+        db_table = "pipelines_pipeline"
+        ordering = ['-created_at']
+        verbose_name_plural = "Pipelines"

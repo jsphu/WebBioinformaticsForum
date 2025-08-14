@@ -29,12 +29,6 @@ class ProcessModel(models.Model):
         related_name="process_owner"
     )
 
-    pipelines = models.ManyToManyField(
-        "pipelines_pipeline.PipelineModel",
-        on_delete=models.PROTECT,
-        related_name="process_pipelines",
-    )
-
     description = models.TextField(max_length=1000, blank=True)
 
     version = models.CharField(max_length=64, default="0.0.1a")
@@ -42,6 +36,14 @@ class ProcessModel(models.Model):
     is_private = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
 
-    created_at = models.DateTimeField(aut_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.process_name}"
+
+    class Meta:
+        db_table = "pipelines_process"
+        ordering = ['-created_at']
+        verbose_name_plural = "Processes"
