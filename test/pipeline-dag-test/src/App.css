@@ -1,115 +1,154 @@
 .App {
-  font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif;
 }
 
 header {
-  height: 60px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 60px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .main-content-frame {
-  max-width: 1400px;
-  margin: 20px auto;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
 }
 
 .main-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.typing-text::after {
+    content: "│";
+}
+
+.typing-text.blinking::after {
+    animation: blink-caret 1s infinite;
+}
+
+@keyframes blink-caret {
+    0%,
+    50% {
+        opacity: 0;
+    }
+    51%,
+    100% {
+        opacity: 100;
+    }
 }
 
 .topics-list {
-  flex: 3;
-  margin-right: 20px;
-  padding: 0;
+    flex: 3;
+    margin-right: 20px;
+    padding: 0;
 }
 
 .news-section {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  text-align: left;
+    flex: 1.1;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.news-header {
+    background-color: #e0e7f0;
+    border: 5px solid rgba(0, 0, 0, 0);
+    border-radius: 6px;
+    margin-top: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.news-item {
+    padding: 15px;
+    margin: 10px;
+    border-radius: 10px;
+    background-color: #f0f4f8;
+    transition: 0.2s ease-in-out;
+}
+
+.news-item:hover {
+    background-color: lightsteelblue;
 }
 
 .topics-frame {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #ffffff;
-  padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #ffffff;
+    padding: 10px;
 }
 
 .topics-header {
-  background-color: #e0e7f0;
-  padding: 5px 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-bottom: 1px solid #ccc;
-  margin: -10px -10px 10px -10px;
-  border-radius: 4px 4px 0 0;
-  display: flex;
-  align-items: center;
+    background-color: #e0e7f0;
+    padding: 5px 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    margin: -10px -10px 10px -10px;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    align-items: center;
 }
 
 .topic-item {
-  display: block;
-  padding: 8px;
-  margin-bottom: 5px;
-  border-bottom: 1px solid #eee;
-  border-radius: 4px;
-  background-color: #ffffff;
-  text-decoration: none;
-  color: #000;
-  transition: background-color 0.3s;
+    display: block;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eee;
+    border-radius: 4px;
+    background-color: #ffffff;
+    text-decoration: none;
+    color: #000;
+    transition: background-color 0.3s;
 }
 
 .topic-item:hover {
-  background-color: #f0f4f8;
+    background-color: #f0f4f8;
 }
 
 .topic-item:last-child {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .topic-content h3 {
-  margin: 2px 0;
-  font-size: 1rem;
+    margin: 2px 0;
+    font-size: 1rem;
 }
 
 .topic-content p {
-  margin: 2px 0;
-  font-size: 0.9rem;
-  color: #444;
+    margin: 2px 0;
+    font-size: 0.9rem;
+    color: #444;
 }
 
 .topic-content small {
-  margin: 2px 0;
-  color: #666;
+    margin: 2px 0;
+    color: #666;
 }
 
 .pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
 }
 
 .pagination button {
-  background-color: #f0f4f8;
-  border: 1px solid #ddd;
-  cursor: pointer;
-  transition: background-color 0.3s;
+    background-color: #f0f4f8;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .pagination button:hover {
-  background-color: #e0e7f0;
+    background-color: #e0e7f0;
 }
 
 .pagination button.active {
-  background-color: #0056b3;
-  color: #fff;
-  border: 1px solid #0056b3;
+    background-color: #0056b3;
+    color: #fff;
+    border: 1px solid #0056b3;
 }
