@@ -8,10 +8,10 @@ class AbstractSerializer(serializers.ModelSerializer):
         format='hex'
     )
 
-    created = serializers.DateTimeField(
+    created_at = serializers.DateTimeField(
         read_only=True
     )
 
-    updated = serializers.DateTimeField(
+    updated_at = serializers.DateTimeField(
         read_only=True
     )

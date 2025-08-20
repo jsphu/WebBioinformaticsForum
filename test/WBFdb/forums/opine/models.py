@@ -21,7 +21,7 @@ class OpineModel(WBFAbstractModel):
 
     content = models.TextField(max_length=8000)
 
-    edited = models.BooleanField(default=False)
+    _tracked_fields = ['content']
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.UUIDField()

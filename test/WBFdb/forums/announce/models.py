@@ -15,7 +15,7 @@ class AnnounceModel(WBFAbstractModel):
     )
     content = models.TextField(max_length=8000)
 
-    edited = models.BooleanField(default=False)
+    _tracked_fields = ['content']
 
     # """UNIMPLEMENTED"""
     # tag = models.ManyToManyField(

@@ -26,6 +26,8 @@ class AmplifyModel(WBFAbstractModel):
     # Optional add a comment
     content = models.TextField(max_length=8000, blank=True)
 
+    _tracked_fields = ['content']
+
     objects = AmplifyManager()
 
     def __str__(self):

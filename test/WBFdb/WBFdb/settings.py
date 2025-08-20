@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_extensions',
     'rest_framework',
     # Access Policy ... it is broken somehow, so i commented it.
     # 'drf_access_policy',
@@ -56,7 +57,18 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
 
     # Apps
+    'forums',
     'forums.user',
+    'forums.opine',
+    'forums.announce',
+    'forums.amplify',
+    'forums.like',
+    'forums.report',
+
+    'pipelines',
+    'pipelines.pipeline',
+    'pipelines.process',
+    'pipelines.parameter',
 ]
 
 MIDDLEWARE = [

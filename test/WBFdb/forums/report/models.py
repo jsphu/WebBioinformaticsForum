@@ -24,13 +24,13 @@ class ReportModel(WBFAbstractModel):
         PLAGIARISM = "plagiarism", "Plagiarized Research"
 
     class ReportTags(models.TextChoices):
-        HIGH_PRIORITY = "high_priority", "High Priority"
         REVIEWED = "reviewed", "Reviewed"
+        DUPLICATE = "duplicate", "Duplicate Report"
         ESCALATED = "escalated", "Escalated"
+        LEGAL_REVIEW = "legal_review", "Legal Review"
+        HIGH_PRIORITY = "high_priority", "High Priority"
         FALSE_POSITIVE = "false_positive", "False Positive"
         PENDING_ACTION = "pending_action", "Pending Action"
-        LEGAL_REVIEW = "legal_review", "Legal Review"
-        DUPLICATE = "duplicate", "Duplicate Report"
 
     report_tag = models.CharField(
         max_length=30,

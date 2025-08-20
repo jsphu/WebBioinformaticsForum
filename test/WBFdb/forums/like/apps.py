@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class ForumsConfig(AppConfig):
+class LikeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'forums'
-    label = 'forums'
+    name = 'forums.like'
+    label = 'forums_like'
