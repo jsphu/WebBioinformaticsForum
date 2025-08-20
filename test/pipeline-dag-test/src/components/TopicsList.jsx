@@ -1,19 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-function TopicsList() {
-  const [topics] = useState([
-    { id: 1, title: 'Yeni Genom Analizi', summary: 'Son gelişmeler ve yöntemler...', time: new Date('2025-08-15T20:00:00'), interaction: 50 },
-    { id: 2, title: 'Protein Yapısı Modelleme', summary: 'Temel yaklaşımlar...', time: new Date('2025-08-15T19:30:00'), interaction: 120 },
-    { id: 3, title: 'RNA Sekanslama Teknikleri', summary: 'Yeni bir protokol...', time: new Date('2025-08-15T18:45:00'), interaction: 80 },
-    { id: 4, title: 'Biyoinformatik Veri Temizliği', summary: 'Veri ön işleme ipuçları...', time: new Date('2025-08-15T17:15:00'), interaction: 200 },
-    { id: 5, title: 'Kanser Genomu Araştırmaları', summary: 'Güncel bulgular...', time: new Date('2025-08-14T14:00:00'), interaction: 150 },
-    { id: 6, title: 'Makine Öğrenimi Biyolojide', summary: 'Uygulamalar ve sınırlamalar...', time: new Date('2025-08-14T12:30:00'), interaction: 90 },
-    { id: 7, title: 'Metagenomik Analiz', summary: 'Mikrobiyom verileri...', time: new Date('2025-08-13T16:00:00'), interaction: 110 },
-    { id: 8, title: 'Filojeetik Ağaç Çizimi', summary: 'Yöntem karşılaştırması...', time: new Date('2025-08-13T10:45:00'), interaction: 70 },
-    { id: 9, title: 'Veri Görselleştirme Araçları', summary: 'Popüler araçlar...', time: new Date('2025-08-12T15:30:00'), interaction: 180 },
-    { id: 10, title: 'DNA Onarımı Mekanizmaları', summary: 'Moleküler detaylar...', time: new Date('2025-08-12T09:00:00'), interaction: 130 },
-  ]);
+function TopicsList({ topics }) {
   const [sortBy, setSortBy] = useState('en-gunel');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
