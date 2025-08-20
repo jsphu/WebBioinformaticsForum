@@ -2,6 +2,8 @@ from django.contrib.auth.models import (AbstractBaseUser, PermissionsMixin, Grou
 from django.db import (models,)
 from django.utils import (timezone,)
 from django.contrib.auth.base_user import (BaseUserManager,)
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 
 class WBFUserManager(BaseUserManager):
     """Custom User Manager for WBF"""
@@ -24,6 +26,13 @@ class WBFUserManager(BaseUserManager):
         extra_fields.setdefault('is_moderator', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
+
+    def get_object_by_public_id(self, id):
+        try:
+            instance = self.get(id=id)
+            return instance
+        except (ObjectDoesNotExist, ValueError, TypeError):
+            return Http404
 
 class WBFUserModel(AbstractBaseUser, PermissionsMixin):
     """WBF Main User Model"""

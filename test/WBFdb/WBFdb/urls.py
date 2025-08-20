@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path
 
 import forums.urls
+import pipelines.urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
 urlpatterns += forums.urls.urlpatterns
+urlpatterns += pipelines.urls.urlpatterns
