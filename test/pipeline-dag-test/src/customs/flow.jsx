@@ -43,7 +43,7 @@ const ProviderFlow = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-    const flowWidth = 1800;
+    const flowWidth = 1200;
     const flowHeight = 900;
     const nodeWidth = 350;
     const nodeHeight = 200;
