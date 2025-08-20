@@ -1,31 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+const base64ToObjectURL = (base64String, mimeType) => {
+    // Convert base64 to a byte array
+    const byteCharacters = atob(base64String);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+
+    // Create a Blob from the byte array
+    const blob = new Blob([byteArray], { type: mimeType });
+    return URL.createObjectURL(blob);
+};
+
+function ImageDisplay({ base64String, mimeType }) {
+    const [imageSrc, setImageSrc] = useState(null);
+
+    useEffect(() => {
+        if (mimeType === "image/jpeg") {
+            const objectURL = base64ToObjectURL(base64String, mimeType);
+            setImageSrc(objectURL);
+
+            return () => URL.revokeObjectURL(objectURL);
+        }
+    }, [base64String, mimeType]);
+
+    return (
+        <div>
+            {imageSrc ? (
+                <img
+                    src={imageSrc}
+                    alt="Decoded"
+                    style={{ maxWidth: "500px", border: "1px solid gray" }}
+                />
+            ) : (
+                <p>No JPEG image to display.</p>
+            )}
+        </div>
+    );
+}
 
 function Base64Decoder() {
     const [base64String, setBase64String] = useState("");
     const [fileName, setFileName] = useState("decoded_file");
     const [mimeType, setMimeType] = useState("application/octet-stream");
+    const [isJPEG, setIsJPEG] = useState(false);
 
     const handleDecode = () => {
         try {
-            // Convert base64 to a byte array
-            const byteCharacters = atob(base64String);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            if (mimeType === "image/jpeg") {
+                setIsJPEG(true);
+            } else {
+                const blob = base64ToObjectURL(base64String, mimeType);
+                // Create a link to download the blob
+                const link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = fileName;
+                link.click();
+
+                // Clean up the URL object
+                window.URL.revokeObjectURL(link.href);
             }
-            const byteArray = new Uint8Array(byteNumbers);
-
-            // Create a Blob from the byte array
-            const blob = new Blob([byteArray], { type: mimeType });
-
-            // Create a link to download the blob
-            const link = document.createElement("a");
-            link.href = window.URL.createObjectURL(blob);
-            link.download = fileName;
-            link.click();
-
-            // Clean up the URL object
-            window.URL.revokeObjectURL(link.href);
         } catch (e) {
             alert("Invalid base64 string");
         }
@@ -57,6 +93,9 @@ function Base64Decoder() {
             />
             <br />
             <button onClick={handleDecode}>Download File</button>
+            {isJPEG && (
+                <ImageDisplay base64String={base64String} mimeType={mimeType} />
+            )}
         </div>
     );
 }
