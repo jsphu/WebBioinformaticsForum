@@ -18,6 +18,31 @@ class PipelineSerializer(PIPESerializer):
             raise ValidationError("You can't create a pipeline for another user!")
         return value
 
+    processes_count = serializers.SerializerMethodField()
+    def get_processes_count(self, obj):
+        processes = obj.processes
+        return processes.count()
+
+    total_parameters_count = serializers.SerializerMethodField()
+    def get_total_parameters_count(self, obj):
+        count=0
+        for process in obj.processes.all():
+            for param in process.parameters.all():
+                count+=1
+        return count
+        #return sum([1 for process in obj.processes.all() for param in process.parameters.all()])
+
+    flow_data = serializers.JSONField()
+    def validate_flow_data(self, value):
+        if isinstance(value, dict):
+            if "nodes" not in value:
+                raise ValidationError("You need 'nodes' data for flow!")
+            if "edges" not in value:
+                raise ValidationError("You need 'edges' data for flow!")
+        else:
+            raise ValidationError("flow_data must be a JSON")
+        return value
+
     class Meta:
         model = PipelineModel
         """
@@ -27,7 +52,9 @@ class PipelineSerializer(PIPESerializer):
         fields = [
             'id', 'owner', 'pipeline_title',
             'is_edited', 'created_at', 'updated_at',
-            'description', 'version', 'flow_data', 'processes'
+            'description', 'version', 'flow_data', 'processes',
+            'processes_count', 'total_parameters_count',
+            'version_history'
         ]
         read_only_fields = ["is_edited"]
 
@@ -37,17 +64,8 @@ class PipelineSerializer(PIPESerializer):
             rep["owner"]
         )
         processes = instance.processes.all()
-
-        rep["processes"] = ProcessSerializer(processes, many=True).data
+        rep["processes"] = [f"{p.process_name} v{p.version}" for p in processes]
 
         rep["owner"] = WBFUserSerializer(owner).data
 
         return rep
-
-    def update(self, instance, validated_data):
-        if not instance.is_edited:
-            validated_data['is_edited'] = True
-
-        instance = super().update(instance, validated_data)
-
-        return instance

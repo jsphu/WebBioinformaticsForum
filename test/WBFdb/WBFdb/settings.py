@@ -183,6 +183,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSON_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 5,
 }
 
 # dj-rest-auth config

@@ -19,6 +19,21 @@ class ProcessSerializer(PIPESerializer):
             raise ValidationError("You can't create a process for another user!")
         return value
 
+    parameters_count = serializers.SerializerMethodField()
+
+    def get_parameters_count(self, obj):
+        parameters = obj.parameters
+        return parameters.count()
+
+    def validate_parameters(self, value):
+        keys = [param.key for param in value]
+        duplicates = {f"('{k}' counted {c} times)" for k in keys if (c:=keys.count(k)) > 1}
+        if duplicates:
+            raise serializers.ValidationError(
+                f"Parameter keys should be unique! {', '.join(duplicates)}"
+            )
+        return value
+
     class Meta:
         model = ProcessModel
         """
@@ -28,29 +43,18 @@ class ProcessSerializer(PIPESerializer):
         fields = [
             'id', 'owner', 'process_name',
             'is_edited', 'created_at', 'updated_at',
-            'description', 'version', 'parameter_processes'
+            'description', 'version', 'parameters_count',
+            'parameters', 'version_history'
         ]
-        read_only_fields = ["is_edited"]
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         owner = WBFUserModel.objects.get_object_by_public_id(
             rep["owner"]
         )
-        parameters = instance.parameter_processes.all()
-
-        rep["parameters"] = ParameterSerializer(parameters, many=True).data
-
-        rep.pop('parameter_processes', None)
+        parameters = instance.parameters.all()
+        rep["parameters"] = {p.key: p.value for p in parameters}
 
         rep["owner"] = WBFUserSerializer(owner).data
 
         return rep
-
-    def update(self, instance, validated_data):
-        if not instance.is_edited:
-            validated_data['is_edited'] = True
-
-        instance = super().update(instance, validated_data)
-
-        return instance

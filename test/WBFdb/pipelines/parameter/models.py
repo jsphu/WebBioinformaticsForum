@@ -12,11 +12,6 @@ class ParameterModel(PIPEAbstractModel):
         'value_type', 'default_value', 'is_required'
     ] # Field to track versions
 
-    processes = models.ManyToManyField(
-        "pipelines_process.ProcessModel",
-        related_name="parameter_processes"
-    )
-
     description = models.TextField(max_length=512)
 
     key = models.CharField(max_length=64)

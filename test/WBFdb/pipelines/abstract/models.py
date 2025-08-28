@@ -33,7 +33,7 @@ class PIPEAbstractModel(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
-        related_name='%(class)s_owner',
+        related_name='%(class)s_owned',
     )
 
     originated_from = models.ForeignKey(
@@ -41,7 +41,7 @@ class PIPEAbstractModel(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='origin_%(class)s',
+        related_name='originated_%(class)s',
     )
 
     is_private = models.BooleanField(default=False)
