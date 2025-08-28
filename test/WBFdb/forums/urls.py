@@ -1,7 +1,5 @@
-from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView,)
-from django.urls import path
-
-urlpatterns = [
-    path('api/auth/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-]
+from .user.views import WBFUserViewSet
+from .announce.views import AnnounceViewSet
+from .opine.views import OpineViewSet
+from .amplify.views import AmplifyViewSet
+from .report.views import ReportViewSet

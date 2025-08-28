@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 from pipelines.abstract.serializers import PIPESerializer
 from pipelines.parameter.models import ParameterModel
 from forums.user.models import WBFUserModel
-from forums.user.serializers import WBFUserSerializer
+from forums.user.serializers import WBFUserMiniSerializer
 
 class ParameterSerializer(PIPESerializer):
     owner = serializers.SlugRelatedField(
@@ -26,6 +26,7 @@ class ParameterSerializer(PIPESerializer):
             'id', 'owner', 'key', 'value',
             'default_value', 'value_type',
             'is_edited', 'created_at', 'updated_at',
+            'version_history'
         ]
         read_only_fields = ["is_edited"]
 
@@ -34,14 +35,6 @@ class ParameterSerializer(PIPESerializer):
         owner = WBFUserModel.objects.get_object_by_public_id(
             rep["owner"]
         )
-        rep["owner"] = WBFUserSerializer(owner).data
+        rep["owner"] = WBFUserMiniSerializer(owner).data
 
         return rep
-
-    def update(self, instance, validated_data):
-        if not instance.is_edited:
-            validated_data['is_edited'] = True
-
-        instance = super().update(instance, validated_data)
-
-        return instance

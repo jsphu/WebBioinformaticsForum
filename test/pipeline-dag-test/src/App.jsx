@@ -7,6 +7,7 @@ import TopicDetail from "./components/TopicDetail";
 import MainPage from "./components/MainPage";
 import Flow from "./customs/flow";
 import "./App.css";
+import Login from "./pages/Login";
 
 function App() {
     return (
@@ -46,6 +47,7 @@ function App() {
                         <Route path="/news" element={<NewsSection />} />
                         <Route path="/topic/:id" element={<TopicDetail />} />
                         <Route path="/pipeline-editor" element={<Flow />} />
+                        <Route path="/login" element={<Login />} />
 
                         {/* This is the home page route ("/") */}
                         <Route

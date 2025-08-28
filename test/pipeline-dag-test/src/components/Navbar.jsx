@@ -108,9 +108,16 @@ function Navbar() {
                 >
                     🔔
                 </span>
-                <button style={{ fontSize: "1.2rem", padding: "4px 12px" }}>
+                <Link
+                    to="/login"
+                    style={{
+                        textDecoration: "none",
+                        color: "#000",
+                        fontWeight: "bold",
+                    }}
+                >
                     Login
-                </button>
+                </Link>
             </div>
         </header>
     );

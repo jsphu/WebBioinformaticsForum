@@ -34,6 +34,7 @@ class WBFUserManager(BaseUserManager):
         except (ObjectDoesNotExist, ValueError, TypeError):
             return Http404
 
+
 class WBFUserModel(AbstractBaseUser, PermissionsMixin):
     """WBF Main User Model"""
 
@@ -74,6 +75,7 @@ class WBFUserModel(AbstractBaseUser, PermissionsMixin):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email',]
@@ -85,23 +87,19 @@ class WBFUserModel(AbstractBaseUser, PermissionsMixin):
 
     def follow(self, user):
         """Follow a user"""
-        from forums.user.follow import UserFollow
         if user != self and not self.is_following(user):
             UserFollow.objects.get_or_create(follower=self, following=user)
 
     def unfollow(self, user):
         """Unfollow a user"""
-        from forums.user.follow import UserFollow
         UserFollow.objects.filter(follower=self, following=user).delete()
 
     def is_following(self, user):
         """Check if this user is following another user"""
-        from forums.user.follow import UserFollow
         return UserFollow.objects.filter(follower=self, following=user).exists()
 
     def is_followed_by(self, user):
         """Check if this user is followed by another user"""
-        from forums.user.follow import UserFollow
         return UserFollow.objects.filter(follower=user, following=self).exists()
 
     @property
@@ -117,7 +115,7 @@ class WBFUserModel(AbstractBaseUser, PermissionsMixin):
     @property
     def shares_count(self):
         """Count of user's shares"""
-        return self.amplifies_created.filter(is_private=False).count()
+        return self.amplifies_created.all().count()
 
     @property
     def comments_count(self):
@@ -132,17 +130,17 @@ class WBFUserModel(AbstractBaseUser, PermissionsMixin):
     @property
     def pipelines_count(self):
         """Count of user's pipelines"""
-        return self.pipeline_owner.filter(is_private=False).count()
+        return self.pipeline_owned.filter(is_private=False).count()
 
     @property
     def processes_count(self):
         """Count of user's pipelines"""
-        return self.process_owner.filter(is_private=False).count()
+        return self.process_owned.filter(is_private=False).count()
 
     @property
     def parameters_count(self):
         """Count of user's pipelines"""
-        return self.parameter_owner.filter(is_private=False).count()
+        return self.parameter_owned.filter(is_private=False).count()
 
     @property
     def likes_count(self):
@@ -156,3 +154,38 @@ class WBFUserModel(AbstractBaseUser, PermissionsMixin):
             + self.comments_count + self.processes_count
             + self.parameters_count + self.pipelines_count
         )
+
+
+class UserFollow(models.Model):
+    """Through model for user following relationships"""
+    follower = models.ForeignKey(
+        WBFUserModel,
+        on_delete=models.CASCADE,
+        related_name='user_following'
+    )
+    following = models.ForeignKey(
+        WBFUserModel,
+        on_delete=models.CASCADE,
+        related_name='user_followers'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    is_notifications_enabled = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = "forums_user_follow"
+        unique_together = ('follower', 'following')
+        indexes = [
+            models.Index(fields=['follower']),
+            models.Index(fields=['following']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.following.username}"
+
+    def clean(self):
+        """Prevent users from following themselves"""
+        from django.core.exceptions import ValidationError
+        if self.follower == self.following:
+            raise ValidationError("Users cannot follow themselves")

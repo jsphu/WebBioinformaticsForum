@@ -34,7 +34,6 @@ class OpineModel(WBFAbstractModel):
 
     class Meta:
         db_table = "forums_opine"
-        unique_together = ['author', 'content_type', 'object_id']
         indexes = [
             models.Index(fields=['content_type', 'object_id']),
             models.Index(fields=['author']),
