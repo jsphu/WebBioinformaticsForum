@@ -148,51 +148,49 @@ header {
 }
 
 .pagination button.active {
-<<<<<<< HEAD
-  background-color: #0056b3;
-  color: #fff;
-  border: 1px solid #0056b3;
-}
-form input {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  outline: none;
-}
-
-form input:focus {
-  border-color: #0056b3;
-}
-
-button {
-  border-radius: 4px;
-  cursor: pointer;
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-main {
-  flex: 1 0 auto;
-}
-
-footer {
-  flex-shrink: 0;
-}
-=======
     background-color: #0056b3;
     color: #fff;
     border: 1px solid #0056b3;
 }
->>>>>>> 11ea236a0f01ac02caabc7d500db9f79925ca89f
+form input {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+}
+
+form input:focus {
+    border-color: #0056b3;
+}
+
+button {
+    border-radius: 4px;
+    cursor: pointer;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}

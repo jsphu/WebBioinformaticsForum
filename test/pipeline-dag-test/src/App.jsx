@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -7,7 +6,8 @@ import NewsSection from './components/NewsSection';
 import TopicDetail from './components/TopicDetail';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
-import Footer from './components/Footer'; 
+import Footer from './components/Footer';
+import Flow from './customs/flow';
 import './App.css';
 
 function App() {
@@ -40,6 +40,7 @@ function App() {
                 <Route path="/topic/:id" element={<TopicDetail />} />
                 <Route path="/sign-in" element={<SignIn />} />
                 <Route path="/sign-up" element={<SignUp />} />
+                <Route path="/pipeline-editor" element={<Flow />} />
                 <Route path="/" element={<><TopicsList topics={topics} /><NewsSection /></>} />
               </Routes>
             </div>
@@ -49,75 +50,6 @@ function App() {
       </div>
     </Router>
   );
-=======
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import TopicsList from "./components/TopicsList";
-import NewsSection from "./components/NewsSection";
-import TopicDetail from "./components/TopicDetail";
-import MainPage from "./components/MainPage";
-import Flow from "./customs/flow";
-import "./App.css";
-import Login from "./pages/Login";
-
-function App() {
-    return (
-        <Router>
-            <div className="App">
-                <Navbar />
-                <div className="main-content-frame">
-                    <Routes>
-                        <Route path="/forums" element={<TopicsList />} />
-                        <Route
-                            path="/tool"
-                            element={
-                                <div
-                                    style={{
-                                        padding: "20px",
-                                        textAlign: "left",
-                                    }}
-                                >
-                                    Bu sayfada araçlar hakkında bilgi yer
-                                    alacak.
-                                </div>
-                            }
-                        />
-                        <Route
-                            path="/articles"
-                            element={
-                                <div
-                                    style={{
-                                        padding: "20px",
-                                        textAlign: "left",
-                                    }}
-                                >
-                                    Makaleler burada listelenecek.
-                                </div>
-                            }
-                        />
-                        <Route path="/news" element={<NewsSection />} />
-                        <Route path="/topic/:id" element={<TopicDetail />} />
-                        <Route path="/pipeline-editor" element={<Flow />} />
-                        <Route path="/login" element={<Login />} />
-
-                        {/* This is the home page route ("/") */}
-                        <Route
-                            path="/"
-                            element={
-                                <>
-                                    <div className="flex justify-center w-full">
-                                        <MainPage />
-                                    </div>
-                                </>
-                            }
-                        />
-                    </Routes>
-                </div>
-            </div>
-        </Router>
-    );
->>>>>>> 11ea236a0f01ac02caabc7d500db9f79925ca89f
 }
 
 export default App;
