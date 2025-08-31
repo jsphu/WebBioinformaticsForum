@@ -159,4 +159,4 @@ GET     /api/parameters/<parameter_id>/shares/<id>/likes/     get parameter shar
  - React, ReactFlow
 
 ## Version
-0.3.1
+0.3.5
