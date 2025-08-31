@@ -123,27 +123,29 @@ export default function CustomEdge({
                         }}
                     >
                         <h5>Source</h5>
-                        {Object.entries(data.source).map(([k, v]) => {
-                            if (k === "data") {
-                                return <p>Label: {v.label}</p>;
-                            } else if (k === "id")
-                                return (
-                                    <p>
-                                        {k}: {v}
-                                    </p>
-                                );
-                        })}
+                        {Object.entries(data.source)
+                          .filter(([k]) => k === "id" || k === "data")
+                          .map(([k, v]) =>
+                            k === "data" ? (
+                              <p key={k}>Label: {v.label}</p>
+                            ) : (
+                              <p key={k}>
+                                {k}: {v}
+                              </p>
+                            )
+                          )}
                         <h5>Target</h5>
-                        {Object.entries(data.target).map(([k, v]) => {
-                            if (k === "data") {
-                                return <p>Label: {v.label}</p>;
-                            } else if (k === "id")
-                                return (
-                                    <p>
-                                        {k}: {v}
-                                    </p>
-                                );
-                        })}
+                        {Object.entries(data.target)
+                          .filter(([k]) => k === "id" || k === "data")
+                          .map(([k, v]) =>
+                            k === "data" ? (
+                              <p key={k}>Label: {v.label}</p>
+                            ) : (
+                              <p key={k}>
+                                {k}: {v}
+                              </p>
+                            )
+                          )}
                     </div>
                 </div>
             </EdgeLabelRenderer>

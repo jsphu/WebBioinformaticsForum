@@ -1,10 +1,10 @@
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.exceptions import ValidationError
 
+from ..abstract.views import AbstractViewSet
 from ..like.serializers import LikeSerializer
 from ..like.models import LikeModel
 from ..amplify.serializers import AmplifySerializer
@@ -13,12 +13,21 @@ from .serializers import AnnounceSerializer
 from .models import AnnounceModel
 
 # Create your views here.
-class AnnounceViewSet(ModelViewSet):
+class AnnounceViewSet(AbstractViewSet):
     queryset = AnnounceModel.objects.all()
 
+    ordering_fields = ['updated_at', 'created_at', 'last_edited_at']
+    ordering = ['-updated_at']
+
     serializer_class = AnnounceSerializer
-    permission_classes = [IsAuthenticated,]
     lookup_value_regex = "[0-9a-fA-F-]{32,36}"
+
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [AllowAny]
+        return [permission() for permission in permission_classes]
 
     def get_object(self):
         obj = AnnounceModel.objects.get_object_by_public_id(self.kwargs['pk'])
@@ -26,6 +35,11 @@ class AnnounceViewSet(ModelViewSet):
         self.check_object_permissions(self.request, obj)
 
         return obj
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+        )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -36,7 +50,7 @@ class AnnounceViewSet(ModelViewSet):
 
         return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-    @action(methods=['get'], detail=True)
+    @action(methods=['get'], detail=True, permission_classes=[AllowAny])
     def shares(self, request, pk=None):
         """All shares/reposts of post"""
         obj = self.get_object()
@@ -50,7 +64,7 @@ class AnnounceViewSet(ModelViewSet):
                 status=status.HTTP_204_NO_CONTENT
             )
 
-    @action(methods=['post'], detail=True)
+    @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated])
     def share(self, request, pk=None):
         """Repost/Share the post"""
         try:
@@ -79,7 +93,7 @@ class AnnounceViewSet(ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    @action(methods=['get'], detail=True)
+    @action(methods=['get'], detail=True, permission_classes=[AllowAny])
     def likes(self, request, pk=None):
         """All users that liked the post"""
         obj = self.get_object()
@@ -93,7 +107,7 @@ class AnnounceViewSet(ModelViewSet):
                 status=status.HTTP_204_NO_CONTENT
             )
 
-    @action(methods=['post'], detail=True)
+    @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
         """Toggle like - single endpoint for like/unlike"""
         try:

@@ -22,10 +22,10 @@ from django.http import HttpResponsePermanentRedirect
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import NestedDefaultRouter
 
-from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView,)
 from forums.urls import (
     WBFUserViewSet, AnnounceViewSet, OpineViewSet,
-    AmplifyViewSet, ReportViewSet
+    TokenWithUserRefreshView, AmplifyViewSet, ReportViewSet,
+    TokenWithUserDataView, WBFUserRegisterView, VersionView
 )
 from pipelines.urls import PipelineViewSet, ProcessViewSet, ParameterViewSet
 
@@ -123,6 +123,8 @@ all_urls = list(chain(redirected_urls, router.urls, *nested_urls))
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(all_urls)),
-    path('api/login/', TokenObtainPairView.as_view(), name="token-obtain"),
-    path('api/refresh/', TokenRefreshView.as_view(), name="token-refresh"),
+    path('api/auth/login/', TokenWithUserDataView.as_view(), name="token-obtain"),
+    path('api/auth/register/', WBFUserRegisterView.as_view(), name="register"),
+    path('api/auth/refresh/', TokenWithUserRefreshView.as_view(), name="token-refresh"),
+    path('api/version/', VersionView.as_view(), name="version")
 ]
