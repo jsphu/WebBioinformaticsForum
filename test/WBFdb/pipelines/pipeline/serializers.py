@@ -63,8 +63,6 @@ class PipelineSerializer(PIPESerializer):
         owner = WBFUserModel.objects.get_object_by_public_id(
             rep["owner"]
         )
-        processes = instance.processes.all()
-        rep["processes"] = [f"{p.process_name} v{p.version}" for p in processes]
 
         rep["owner"] = WBFUserSerializer(owner).data
 

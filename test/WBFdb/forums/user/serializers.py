@@ -1,8 +1,33 @@
 from rest_framework import serializers
 from forums.abstract.serializers import AbstractSerializer
 from forums.user.models import WBFUserModel, UserFollow
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, PasswordField
 
 from django.conf import settings
+
+class TokenWithUserDataSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        data["user"] = WBFUserSerializer(self.user).data
+
+        return data
+
+class UserRegisterSerializer(AbstractSerializer):
+    password = PasswordField(min_length=8)
+
+    class Meta:
+        model = WBFUserModel
+        fields = ['username', 'email', 'password']
+
+    def create(self, validated_data):
+        username, email, password = validated_data["username"], validated_data["email"], validated_data["password"]
+        user = WBFUserModel.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+        return user
 
 class UserFollowSerializer(AbstractSerializer):
     id = serializers.UUIDField(read_only=True, source="public_id")

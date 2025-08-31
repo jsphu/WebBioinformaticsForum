@@ -1,13 +1,25 @@
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
+from rest_framework.generics import CreateAPIView
 from rest_framework import status
 
 from forums.user.models import WBFUserModel
-from forums.user.serializers import WBFUserSerializer, UserFollowSerializer
+from forums.user.serializers import WBFUserSerializer, UserFollowSerializer, TokenWithUserDataSerializer, UserRegisterSerializer
 from forums.abstract.views import AbstractViewSet
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 # Create your views here.
+class TokenWithUserDataView(TokenObtainPairView):
+    serializer_class = TokenWithUserDataSerializer
+
+class TokenWithUserRefreshView(TokenRefreshView):
+    pass
+
+class WBFUserRegisterView(CreateAPIView):
+    queryset = WBFUserModel.objects.all()
+    serializer_class = UserRegisterSerializer
+    permission_classes = [AllowAny,]
 
 class WBFUserViewSet(AbstractViewSet):
     permission_classes = [IsAuthenticated,]

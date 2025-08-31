@@ -18,6 +18,7 @@ class AnnounceSerializer(AbstractSerializer):
             'content',
             'author',
             'created_at',
+            'updated_at',
             'is_edited',
             'last_edited_at',
             'likes_count',

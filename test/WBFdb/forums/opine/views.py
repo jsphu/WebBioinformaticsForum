@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.apps import apps
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -17,8 +17,6 @@ from ..announce.models import AnnounceModel
 class OpineViewSet(ModelViewSet):
 
     serializer_class = OpineSerializer
-    permission_classes = [IsAuthenticated,]
-
 
     __PARENT_MODELS = {
         "post_pk": "forums_announce.AnnounceModel", # POST MODEL
@@ -48,6 +46,13 @@ class OpineViewSet(ModelViewSet):
             content_type=content_type,
             object_id=parent_instance.public_id
         )
+
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [AllowAny]
+        return [permission() for permission in permission_classes]
 
     def get_object(self):
         obj = OpineModel.objects.get_object_by_public_id(self.kwargs['pk'])
@@ -103,7 +108,7 @@ class OpineViewSet(ModelViewSet):
                 status=status.HTTP_204_NO_CONTENT
             )
 
-    @action(methods=['post'], detail=True)
+    @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated])
     def like(self, request, pk=None, **kwargs):
         """Single endpoint for like/unlike"""
         try:
