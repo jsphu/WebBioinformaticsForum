@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import CreateTopic from "./CreateTopic";
-import { UserContext } from "../hooks/UserContext";
+import { useUser } from "../hooks/UserContext";
 import axiosService from "../helpers/axios";
 
 function TopicsList() {
@@ -11,7 +11,7 @@ function TopicsList() {
     currentPage: 1,
   });
   const [sortBy, setSortBy] = useState("en-gunel");
-  const { user } = useContext(UserContext);
+  const { user } = useUser();
   const username = user?.username;
   const totalPages = topics.totalPages;
   const currentPage = topics.currentPage;

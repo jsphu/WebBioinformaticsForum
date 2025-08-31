@@ -1,8 +1,8 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import axiosService from "../helpers/axios";
 import Toaster from "../components/Toaster";
-import { UserContext } from "../hooks/UserContext";
+import { useUser } from "../hooks/UserContext";
 
 export default function SavePipeline(props) {
 
@@ -17,7 +17,7 @@ export default function SavePipeline(props) {
   const handleShow = () => setShow(true);
   const [charCounter, setCharCounter] = useState(0);
   const [titleCharCounter, setTitleCharCounter] = useState(0);
-  const { user } = useContext(UserContext);
+  const { user } = useUser();
 
   const [form, setForm] = useState({ description: "", pipelineTitle: "" });
 

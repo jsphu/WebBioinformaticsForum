@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AddMoreButton from "../buttons/AddMoreButton";
+import { useFadeTransition } from "../../../hooks/animations";
 
 export default function ParametersConfig({
     isOpen,
@@ -13,6 +14,8 @@ export default function ParametersConfig({
     const [paramList, setParamList] = useState([{ key: "", value: "" }]);
     const [config, setConfig] = useState({ ...data });
     const [deleteConsent, setDeleteConsent] = useState(false);
+
+    const { shouldRender, isVisible } = useFadeTransition(isOpen, 300);
 
     // Update the local state when the `data` prop changes
     useEffect(() => {
@@ -67,15 +70,15 @@ export default function ParametersConfig({
             setDeleteConsent(true);
         }
     };
-    if (!isOpen) return null; // Don't render the popup if it's not open
+    if (!shouldRender) return null; // Don't render the popup if it's not open
 
     const addParameterInput = () => {
         setParamList((prev) => [...prev, { key: "", value: "" }]);
     };
 
     return (
-        <div className="popup-overlay">
-            <div className="popup-container">
+        <div className={`popup-overlay ${isVisible ? "open" : "closed"}`}>
+            <div className={`popup-container ${isVisible ? "open" : "closed"}`}>
                 <h2>Configure Parameters</h2>
                 <div className="popup-form">
                     {nodeType === "parameter" ? (
@@ -106,7 +109,7 @@ export default function ParametersConfig({
                             onChange={(e) =>
                                 handleParamChange(index, "key", e.target.value)
                             }
-                            style={{ width: "100px", padding: "5px" }}
+                            style={{ width: "50px", padding: "5px" }}
                         />
                         <input
                             type="text"
@@ -119,7 +122,7 @@ export default function ParametersConfig({
                                     e.target.value,
                                 )
                             }
-                            style={{ width: "250px" }}
+                            style={{ width: "100px" }}
                         />
                         <button
                             onClick={() => {

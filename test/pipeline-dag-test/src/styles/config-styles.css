@@ -1,24 +1,38 @@
 .popup-overlay {
-    pointer-events: auto; /* ensures it captures the event */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 150%;
-    height: 60%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.popup-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .popup-container {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 400px;
-    max-width: 90%;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  max-width: 90%;
+
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.popup-container.open {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .popup-container h2 {
@@ -93,4 +107,89 @@
 
 .delete-button:hover {
     background: darkred;
+}
+
+.settings-button {
+  width: 25px;
+  height: 25px;
+  background-color: white;
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: 1px solid #dddddd;
+  border-radius: 25px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    transform 0.1s ease,
+    background-color 0.1s ease,
+    border-color 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+.settings-button:hover {
+  transform: scale(1.15);
+  background-color: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.settings-button-config {
+  background-image: url('https://cdn-icons-png.flaticon.com/512/3524/3524659.png');
+}
+
+.settings-button-parameters {
+  background-image: url('https://cdn-icons-png.flaticon.com/512/3524/3524660.png');
+}
+
+.sidebar {
+  pointer-events: none;
+  width: 0px;
+  inset: 0;
+  opacity: 0;
+  transition:
+    width 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.sidebar.open {
+  opacity: 1;
+  width: 250px;
+  pointer-events: auto;
+}
+
+.x-turning-to-plus {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.x-turning-to-plus .line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 15px;
+  background: #ff0073;
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+.x-turning-to-plus.open .horizontal {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.x-turning-to-plus.open .vertical {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.x-turning-to-plus.closed .horizontal {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+.x-turning-to-plus.closed .vertical {
+  transform: translate(-50%, -50%) rotate(-90deg);
 }

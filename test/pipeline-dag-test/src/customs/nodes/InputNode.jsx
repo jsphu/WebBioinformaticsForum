@@ -82,7 +82,7 @@ function InputNode({ data, id }) {
                     if (!regex.test(selectedFile.name)) {
                         valid = false;
                         setError(
-                            `"${selectedFile.name}" does not match type with "${node?.data?.label}".`,
+                            `"${selectedFile.name}" does not match with "${pattern}".`,
                         );
                         break;
                     }
@@ -119,8 +119,8 @@ function InputNode({ data, id }) {
                           data: {
                               ...node.data,
                               label: config.label,
-                              inputs: config.inputs,
-                              outputs: config.outputs,
+                              inputs: [file?.name],
+                              outputs: [file?.name],
                               script: config.script,
                           },
                       }
@@ -145,7 +145,7 @@ function InputNode({ data, id }) {
                 {error && <p style={{ color: "red" }}>{error}</p>}
             </div>
             <label style={{ fontSize: "30px" }}>{data.label}</label>
-            <SettingsButton onClick={handleOpen} />
+            <SettingsButton onClick={handleOpen} buttonStyle="settings-button-config" />
             <Config
                 isOpen={isConfigOpen}
                 onClose={handleClose}

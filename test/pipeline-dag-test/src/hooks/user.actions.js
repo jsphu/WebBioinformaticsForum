@@ -1,12 +1,11 @@
-import { useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import axiosService, { baseURL } from "../helpers/axios";
-import { UserContext } from "./UserContext";
+import { useUser } from "./UserContext";
 
 function useUserActions() {
     const navigate = useNavigate();
-    const { setUser } = useContext(UserContext);
+    const { setUser } = useUser();
 
     function setUserDataAndState(res) {
         const userData = {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useFadeTransition } from "../../../hooks/animations";
 
 export default function Config({
     isOpen,
@@ -22,6 +23,7 @@ export default function Config({
     const [error, setError] = useState("");
 
     const [textareaRows, setTextareaRows] = useState(1);
+    const { shouldRender, isVisible } = useFadeTransition(isOpen, 300);
 
     const handleParams = () => {
         const keyMap = new Map(); // Track keys and which node they came from
@@ -111,16 +113,17 @@ export default function Config({
             setDeleteConsent(true);
         }
     };
-    if (!isOpen) return null; // Don't render the popup if it's not open
+    if (!shouldRender) return null;
 
     const handleMouseDown = (e) => {
         e.stopPropagation(); // stop panning
     };
 
+
     return (
-        <div className="popup-overlay">
+        <div className={`popup-overlay ${isVisible ? "open" : "closed"}`}>
             <div
-                className="popup-container"
+                className={`popup-container ${isVisible ? "open" : "closed"}`}
                 onMouseDown={handleMouseDown}
                 onTouchStart={handleMouseDown}
             >

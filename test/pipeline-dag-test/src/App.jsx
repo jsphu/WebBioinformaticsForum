@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import PipelineList from './components/PipelineList';
@@ -8,16 +8,12 @@ import TopicDetail from './components/TopicDetail';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import Flow from './customs/flow';
-import { UserContext } from './hooks/UserContext';
-import { getUser, getAccessToken } from './hooks/user.actions';
+import { UserProvider } from './hooks/UserContext';
 import './App.css';
 
 function App() {
-  const [user, setUser] = useState(getUser());
-  const [accessToken, setAccessToken] = useState(getAccessToken());
-
   return (
-    <UserContext.Provider value={{user, setUser, accessToken, setAccessToken}}>
+    <UserProvider>
       <Router>
         <div style={{ minHeight: "100vh", display: 'flex' }}>
           <Layout>
@@ -40,7 +36,7 @@ function App() {
           </Layout>
         </div>
       </Router>
-    </UserContext.Provider>
+    </UserProvider>
   );
 }
 

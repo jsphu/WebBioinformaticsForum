@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { UserContext } from '../hooks/UserContext';
+import { useUser } from '../hooks/UserContext';
 import { useUserActions } from '../hooks/user.actions';
 import SearchBar from './SearchBar';
 
 export default function Navbar() {
-  const { user } = useContext(UserContext);
+  const { user } = useUser();
 
   const username = user?.username;
   const userActions = useUserActions();

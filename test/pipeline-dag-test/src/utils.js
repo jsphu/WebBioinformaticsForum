@@ -33,3 +33,15 @@ export function dateFormat(dateString) {
 
     return "just now";
 }
+
+export const getId = (nodes) => {
+  // find max numeric part of IDs
+  let max = 0;
+  nodes.forEach((n) => {
+    const num = parseInt(n.id.replace(/\D/g, ""), 10); // extract digits
+    if (!isNaN(num) && num > max) {
+      max = num;
+    }
+  });
+  return String(max + 1);
+};

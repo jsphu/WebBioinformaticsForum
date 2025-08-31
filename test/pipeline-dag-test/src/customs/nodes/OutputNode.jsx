@@ -116,7 +116,7 @@ function OutputNode({ data, id }) {
         <div className="output-node">
             <label style={{ fontSize: "30px" }}>{data.label}</label>
             <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
-                <SettingsButton onClick={handleOpen} />
+                <SettingsButton onClick={handleOpen} buttonStyle="settings-button-config" />
                 <OkButton onClick={handleOk} />
             </div>
             <Config
