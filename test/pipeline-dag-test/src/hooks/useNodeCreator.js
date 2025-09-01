@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { getId } from "../utils"; // utility to get the next ID
 
 
-function createNodeObject(nodeType, id, x, y, labelValue = "") {
+export function createNodeObject(nodeType, id, x, y, labelValue) {
   const baseNode = {
     id,
     position: { x, y },

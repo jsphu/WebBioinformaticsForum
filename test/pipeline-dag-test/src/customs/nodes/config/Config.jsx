@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useFadeTransition } from "../../../hooks/animations";
+import ScriptField from "../../ScriptField";
 
 export default function Config({
     isOpen,
@@ -254,48 +255,12 @@ export default function Config({
                             })}
                             <label>
                                 Script:
-                                <textarea
-                                    name="script"
-                                    value={config.script}
-                                    onChange={handleChange}
-                                    rows={textareaRows}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Tab") {
-                                            e.preventDefault();
-
-                                            const textarea = e.target;
-                                            const start =
-                                                textarea.selectionStart;
-                                            const end = textarea.selectionEnd;
-
-                                            // Insert tab character
-                                            const newValue =
-                                                config.script.substring(
-                                                    0,
-                                                    start,
-                                                ) +
-                                                "\t" +
-                                                config.script.substring(end);
-                                            setConfig((prevConfig) => ({
-                                                ...prevConfig,
-                                                [e.target.name]: newValue,
-                                            }));
-
-                                            // Move cursor after tab
-                                            setTimeout(() => {
-                                                textarea.selectionStart =
-                                                    textarea.selectionEnd =
-                                                        start + 1;
-                                            }, 0);
-                                        }
-                                    }}
-                                    onFocus={() => setTextareaRows(20)}
-                                    onBlur={() => setTextareaRows(1)}
-                                    style={{
-                                        resize: "none",
-                                        fontSize: 10,
-                                        fontFamily: "monospace",
-                                    }}
+                                <ScriptField
+                                  value={config.script}
+                                  onChange={handleChange}
+                                  rows={textareaRows}
+                                  setRows={setTextareaRows}
+                                  setValue={setConfig}
                                 />
                             </label>{" "}
                         </>
