@@ -14,10 +14,10 @@ function TopicsList() {
   const { user } = useUser();
   const username = user?.username;
   const totalPages = topics.totalPages;
-  const currentPage = topics.currentPage;
+  const [currentPage, setCurrentPage] = useState(topics.currentPage);
   const topicsList = topics.itemsList;
 
-  const mapItems = (itemName, itemSetter, page = 1, pageLimit = 100000) => {
+  const mapItems = (itemName, itemSetter, page, pageLimit = 100000) => {
     const offset = (page - 1) * pageLimit;
 
     axiosService
@@ -50,6 +50,7 @@ function TopicsList() {
           ) {
             return prev; // No change, prevent re-render
           }
+          setCurrentPage(newState.currentPage);
           return newState;
         });
       })
@@ -58,8 +59,8 @@ function TopicsList() {
 
   // Load first page
   useEffect(() => {
-    mapItems("posts", setTopics, topics.currentPage, 6);
-  }, [topics.currentPage]);
+    mapItems("posts", setTopics, currentPage, 6);
+  }, [currentPage]);
 
 
   // Sorting (only affects currently fetched page)
@@ -113,7 +114,7 @@ function TopicsList() {
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i + 1}
-              onClick={() => setTopics(i + 1)}
+              onClick={() => setCurrentPage(i + 1)}
               style={{
                 marginRight: "5px",
                 padding: "4px 8px",
