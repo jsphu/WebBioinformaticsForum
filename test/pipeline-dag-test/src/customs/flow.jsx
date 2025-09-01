@@ -370,7 +370,7 @@ function FlowProvider() {
               </button>
             </Panel>
             <Panel position="bottom-center">
-              <p>{pipelineData.pipelineTitle || "New"} by: { pipelineData?.owner?.username || user?.username || "unkown" }</p>
+            <p>{pipelineData.pipelineTitle || "New"} by: {pipelineData?.owner?.username || user?.username || "unkown"} v{ pipelineData.version }</p>
             </Panel>
             <Panel position="bottom-right">
               {Object.keys(versionHistory)
