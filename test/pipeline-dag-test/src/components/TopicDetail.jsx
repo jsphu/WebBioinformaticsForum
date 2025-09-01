@@ -1,18 +1,18 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import axiosService from "../helpers/axios";
 import LikeButton from "./buttons/LikeButton";
 import CreateComment from "./comments/CreateComment";
 import Comment from "./comments/Comment";
 import { dateFormat } from "../utils";
-import { UserContext } from "../hooks/UserContext";
+import { useUser } from "../hooks/UserContext";
 import { Button } from "react-bootstrap";
 
 export default function TopicDetail() {
   const { id } = useParams();
   const [topic, setTopic] = useState(null);
   const [comments, setComments] = useState(null);
-  const { user } = useContext(UserContext);
+  const { user } = useUser();
   const username = user?.username;
   const authorname = topic?.author?.username;
   const isUser = username === authorname && username !== "anonymous";

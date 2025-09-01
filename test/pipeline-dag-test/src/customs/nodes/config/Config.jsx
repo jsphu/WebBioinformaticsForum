@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useFadeTransition } from "../../../hooks/animations";
+import ScriptField from "../../ScriptField";
 
 export default function Config({
     isOpen,
@@ -22,6 +24,7 @@ export default function Config({
     const [error, setError] = useState("");
 
     const [textareaRows, setTextareaRows] = useState(1);
+    const { shouldRender, isVisible } = useFadeTransition(isOpen, 300);
 
     const handleParams = () => {
         const keyMap = new Map(); // Track keys and which node they came from
@@ -111,16 +114,17 @@ export default function Config({
             setDeleteConsent(true);
         }
     };
-    if (!isOpen) return null; // Don't render the popup if it's not open
+    if (!shouldRender) return null;
 
     const handleMouseDown = (e) => {
         e.stopPropagation(); // stop panning
     };
 
+
     return (
-        <div className="popup-overlay">
+        <div className={`popup-overlay ${isVisible ? "open" : "closed"}`}>
             <div
-                className="popup-container"
+                className={`popup-container ${isVisible ? "open" : "closed"}`}
                 onMouseDown={handleMouseDown}
                 onTouchStart={handleMouseDown}
             >
@@ -251,48 +255,12 @@ export default function Config({
                             })}
                             <label>
                                 Script:
-                                <textarea
-                                    name="script"
-                                    value={config.script}
-                                    onChange={handleChange}
-                                    rows={textareaRows}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Tab") {
-                                            e.preventDefault();
-
-                                            const textarea = e.target;
-                                            const start =
-                                                textarea.selectionStart;
-                                            const end = textarea.selectionEnd;
-
-                                            // Insert tab character
-                                            const newValue =
-                                                config.script.substring(
-                                                    0,
-                                                    start,
-                                                ) +
-                                                "\t" +
-                                                config.script.substring(end);
-                                            setConfig((prevConfig) => ({
-                                                ...prevConfig,
-                                                [e.target.name]: newValue,
-                                            }));
-
-                                            // Move cursor after tab
-                                            setTimeout(() => {
-                                                textarea.selectionStart =
-                                                    textarea.selectionEnd =
-                                                        start + 1;
-                                            }, 0);
-                                        }
-                                    }}
-                                    onFocus={() => setTextareaRows(20)}
-                                    onBlur={() => setTextareaRows(1)}
-                                    style={{
-                                        resize: "none",
-                                        fontSize: 10,
-                                        fontFamily: "monospace",
-                                    }}
+                                <ScriptField
+                                  value={config.script}
+                                  onChange={handleChange}
+                                  rows={textareaRows}
+                                  setRows={setTextareaRows}
+                                  setValue={setConfig}
                                 />
                             </label>{" "}
                         </>

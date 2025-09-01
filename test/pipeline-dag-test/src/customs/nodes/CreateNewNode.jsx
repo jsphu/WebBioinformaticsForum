@@ -1,76 +1,16 @@
 import { useReactFlow } from "@xyflow/react";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import ResultNode from "./ResultNode";
+import { useNodeCreator } from "../../hooks/useNodeCreator";
 
-export default function CreateNewNode({ data, isPanel }) {
+export default function CreateNewNode({ isPanel }) {
     const { getNodes, setNodes } = useReactFlow();
     const [idValue, setIdValue] = useState("");
     const [typeValue, setTypeValue] = useState("customNode");
     const [labelValue, setLabelValue] = useState("");
-    const selectedNodeId = "creator";
+    const selectedNodeId = useState("creator");
 
-    const addNodeNear = useCallback(() => {
-        if (!selectedNodeId && !isPanel) return;
-
-        const sourceNode = getNodes().find((n) => n.id === selectedNodeId);
-        if (!sourceNode && !isPanel) return;
-
-        const newType = `${typeValue}`;
-        const newId = `${
-            newType !== "resultNode"
-                ? idValue
-                    ? idValue
-                    : getNodes().length + 1
-                : "result"
-        }`;
-        const newLabel = `${labelValue}`;
-        const offsetX = 300;
-        const offsetY = 35;
-        let newNode;
-
-        if (newType === "parametersNode") {
-            newNode = {
-                id: newId,
-                position: {
-                    x: isPanel ? 0 : sourceNode.position.x + offsetX,
-                    y: isPanel ? 0 : sourceNode.position.y + offsetY,
-                },
-                type: newType,
-                data: {
-                    label: newLabel,
-                    params: {},
-                    source: "",
-                    target: "",
-                },
-            };
-        } else {
-            newNode = {
-                id: newId,
-                data: {
-                    label: newLabel,
-                    inputs: [],
-                    outputs: [],
-                    script: null,
-                    source: "",
-                    target: "",
-                },
-                position: {
-                    x: isPanel ? 0 : sourceNode.position.x + offsetX,
-                    y: isPanel ? 0 : sourceNode.position.y + offsetY,
-                },
-                type: newType,
-            };
-        }
-        setNodes((nds) => [...nds, newNode]);
-    }, [
-        getNodes,
-        setNodes,
-        selectedNodeId,
-        idValue,
-        labelValue,
-        typeValue,
-        isPanel,
-    ]);
+    const { addNodeNear } = useNodeCreator(getNodes, setNodes, labelValue);
 
     const idHandleChange = (evt) => {
         setIdValue(evt.target.value);
@@ -104,7 +44,7 @@ export default function CreateNewNode({ data, isPanel }) {
                 {typeValue === "resultNode" && isPanel ? (
                     <ResultNode />
                 ) : (
-                    <button className="xy-theme__button" onClick={addNodeNear}>
+                    <button className="xy-theme__button" onClick={() => addNodeNear(selectedNodeId, typeValue, true)}>
                         Create
                     </button>
                 )}

@@ -1,8 +1,9 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import axiosService from "../helpers/axios";
 import Toaster from "../components/Toaster";
-import { UserContext } from "../hooks/UserContext";
+import { useUser } from "../hooks/UserContext";
+import VersionField from "./VersionField";
 
 export default function SavePipeline(props) {
 
@@ -17,9 +18,9 @@ export default function SavePipeline(props) {
   const handleShow = () => setShow(true);
   const [charCounter, setCharCounter] = useState(0);
   const [titleCharCounter, setTitleCharCounter] = useState(0);
-  const { user } = useContext(UserContext);
+  const { user } = useUser();
 
-  const [form, setForm] = useState({ description: "", pipelineTitle: "" });
+  const [form, setForm] = useState({ description: "", pipelineTitle: "", version: "" });
 
   useEffect(() => {
     let savedData = null;
@@ -36,6 +37,7 @@ export default function SavePipeline(props) {
         description: savedData.description || "",
         pipelineTitle: savedData.pipelineTitle || "",
         flowData: savedData.flowData || { nodes: [], edges: [] },
+        version: savedData.version || "",
       });
       setCharCounter(savedData.description?.length || 0);
       setTitleCharCounter(savedData.pipelineTitle?.length || 0);
@@ -87,6 +89,7 @@ export default function SavePipeline(props) {
       flow_data: data.flowData,
       owner: data?.owner?.id || user?.id,
       processes: data.processes,
+      version: form.version,
     };
 
     try {
@@ -151,6 +154,7 @@ export default function SavePipeline(props) {
               <Form.Label>
                 Owner: { data?.owner?.username || user?.username }
               </Form.Label>
+              <VersionField value={form.version} onChange={(val) => setForm({...form, version: val})} />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Control

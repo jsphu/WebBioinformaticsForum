@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect, useState, useContext } from "react";
+import React, { useCallback, useRef, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Background,
@@ -11,6 +11,7 @@ import {
   Controls,
   Panel,
   Position,
+  useReactFlow,
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
@@ -23,7 +24,10 @@ import CustomEdge from "./edges";
 import ParametersNode from "./nodes/ParametersNode";
 import SavePipeline from "./SavePipeline.jsx"
 import axiosService from "../helpers/axios";
-import { UserContext } from "../hooks/UserContext.js";
+import { useUser } from "../hooks/UserContext";
+import { useDnD, DnDProvider } from "../hooks/DnDContext.jsx";
+import Sidebar from "./Sidebar.jsx";
+import { useNodeCreator } from "../hooks/useNodeCreator.js";
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
@@ -40,22 +44,56 @@ const edgeTypes = {
   customEdge: CustomEdge,
 };
 
-export default function Flow() {
+function FlowProvider() {
   const { id } = useParams();
 
-  const { user } = useContext(UserContext);
+  const { user } = useUser();
 
   // nodes & edges state managed by React Flow
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
+  const { screenToFlowPosition, getNodes } = useReactFlow();
+  const [type, setType] = useDnD();
+  const [isOpen, setIsOpen] = useState(false);
+
   const [pipelineData, setPipelineData] = useState({
-    flowData: { nodes: [], edges: []},
+    flowData: { nodes: [], edges: [] },
     owner: 0,
     pipelineTitle: "",
     description: "",
     processes: [],
-  })
+    version: "",
+  });
+
+  const [versionHistory, setVersionHistory] = useState({
+      0: {
+        flow_data: { nodes: [], edges: [] },
+        pipeline_title: "",
+        description: "",
+        processes: [1],
+        version: "0.0.1"
+      }
+  });
+
+  const { createNode } = useNodeCreator(getNodes, setNodes)
+
+  const setAndLoadFlowDataFromVersionHistoryId = (versionId) => {
+    try {
+      const version = versionHistory[versionId];
+
+      setPipelineData({
+        flowData: version.flow_data,
+        pipelineTitle: version.pipeline_title,
+        description: version.description,
+        processes: version.processes,
+        version: version.version,
+      })
+      loadFlowData(version.flow_data);
+    } catch (err) {
+      console.error(versionId, ": version doesnt exists.", err);
+    }
+  };
 
   useEffect(() => {
       if (!user?.created_at) {
@@ -97,12 +135,14 @@ export default function Flow() {
   useEffect(() => {
     if (!id) {
       setPipelineData({
-        flowData: { nodes: [], edges: []},
+        flowData: { nodes: [], edges: [] },
         owner: user,
         pipelineTitle: "",
         description: "",
         processes: [1],
-      })
+        version: "0.0.1",
+      });
+      setVersionHistory({ 0: { flow_data: { nodes: [], edges: [] }, pipeline_title: "", description: "", processes: [1], version: "0.0.1" } });
       return
     };
 
@@ -114,14 +154,18 @@ export default function Flow() {
         const processes = res.data?.processes;
         const pipelineTitle = res.data?.pipeline_title;
         const description = res.data?.description;
+        const version = res.data?.version;
+        const versionHistory = res.data?.version_history;
         loadFlowData(flowData);
         setPipelineData({
           flowData,
           owner,
           pipelineTitle,
           description,
-          processes
+          processes,
+          version,
         })
+        setVersionHistory(versionHistory);
       })
       .catch((err) => console.error(err));
   }, [id, loadFlowData, user]);
@@ -131,6 +175,31 @@ export default function Flow() {
   const nodeWidth = 350;
   const nodeHeight = 200;
   const edgeReconnectSuccessful = useRef(true);
+
+  const onDragOver = useCallback((event) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+    }, []);
+
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+      if (!type) return;
+
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      createNode(type, position.x, position.y);
+    },
+    [screenToFlowPosition, type, createNode]
+  );
+
+  const onDragStart = (event, nodeType) => {
+    setType(nodeType);
+    event.dataTransfer.setData('text/plain', nodeType);
+    event.dataTransfer.effectAllowed = 'move';
+  };
 
   const onConnect = useCallback(
     (params) => {
@@ -250,8 +319,12 @@ export default function Flow() {
     [nodes, edges, setNodes, setEdges],
   );
 
+  const handleSidebar = (e) => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <ReactFlowProvider>
+    <>
         <div style={{ height: flowHeight, width: flowWidth }}>
           <ReactFlow
             nodes={nodes}
@@ -264,6 +337,9 @@ export default function Flow() {
             onReconnectStart={onReconnectStart}
             onReconnectEnd={onReconnectEnd}
             onConnect={onConnect}
+            onDrop={onDrop}
+            onDragStart={onDragStart}
+            onDragOver={onDragOver}
             fitView
           >
             <Controls />
@@ -281,15 +357,48 @@ export default function Flow() {
                 horizontal layout
               </button>
             </Panel>
-            <Panel position="top-left">
-              <CreateNewNode isPanel={true} />
-            </Panel>
             <Panel position="top-right">
-            <SavePipeline id={id} data={pipelineData} />
+              <SavePipeline id={id} data={pipelineData} />
+            </Panel>
+            <Panel position="top-left">
+              <button
+                className={`xy-theme__button x-turning-to-plus ${isOpen ? "open" : "closed"}`}
+                onClick={handleSidebar}
+              >
+                <span className="line horizontal" />
+                <span className="line vertical" />
+              </button>
+            </Panel>
+            <Panel position="bottom-center">
+            <p>{pipelineData.pipelineTitle || "New"} by: {pipelineData?.owner?.username || user?.username || "unkown"} v{ pipelineData.version }</p>
+            </Panel>
+            <Panel position="bottom-right">
+              {Object.keys(versionHistory)
+                .slice(-9)  // last
+                .map((versionId) => (
+                  <button
+                    key={`history-${versionId}`}
+                    className="xy-theme__button"
+                    onClick={() => setAndLoadFlowDataFromVersionHistoryId(versionId)}
+                  >
+                    {versionId}
+                  </button>
+              ))}
             </Panel>
             <Background />
           </ReactFlow>
         </div>
-    </ReactFlowProvider>
+        <Sidebar nodeTypes={nodeTypes} isOpen={isOpen} />
+    </>
   );
 };
+
+export default function Flow() {
+  return (
+    <ReactFlowProvider>
+      <DnDProvider>
+        <FlowProvider />
+      </DnDProvider>
+    </ReactFlowProvider>
+  )
+}

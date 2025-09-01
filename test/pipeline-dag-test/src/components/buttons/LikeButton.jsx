@@ -1,10 +1,10 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axiosService from "../../helpers/axios";
-import { UserContext } from "../../hooks/UserContext";
+import { useUser } from "../../hooks/UserContext";
 import { Button } from "react-bootstrap";
 
 export default function LikeButton({ contentType, contentId, likesCount, commentId }) {
-  const { user } = useContext(UserContext);
+  const { user } = useUser();
   const username = user?.username;
 
   const contentURL = commentId ? `/api/${contentType}/${contentId}/comments/${commentId}` : `/api/${contentType}/${contentId}`;

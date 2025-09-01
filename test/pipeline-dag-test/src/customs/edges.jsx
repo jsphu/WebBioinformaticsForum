@@ -5,7 +5,8 @@ import {
     useReactFlow,
     Position,
 } from "@xyflow/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { unixRegexToJSRegex } from "../utils";
 
 export default function CustomEdge({
     id,
@@ -17,7 +18,7 @@ export default function CustomEdge({
     targetPosition,
     data,
 }) {
-    const { setEdges } = useReactFlow();
+    const { setEdges, getNodes } = useReactFlow();
     const [isHovered, setIsHovered] = useState(false);
     const [edgePath, labelX, labelY] = getSmoothStepPath({
         sourceX,
@@ -58,6 +59,67 @@ export default function CustomEdge({
         }
     }, [data?.color, id, setEdges, data]);
 
+    const matchFields = (inputField, outputField) => {
+      try {
+        const inputRegex = new RegExp(unixRegexToJSRegex(inputField));
+        const outputRegex = new RegExp(unixRegexToJSRegex(outputField));
+
+        return inputRegex.test(outputField) || outputRegex.test(inputField);
+      } catch (err) {
+        return false;
+      }
+    };
+
+    const liveData = useMemo(() => {
+      if (!isHovered) return data;
+
+      const nodes = getNodes();
+      const sourceNode = nodes.find((n) => n.id === data.source?.id);
+      const targetNode = nodes.find((n) => n.id === data.target?.id);
+
+      if (sourceNode.type === "parametersNode") {
+        return {
+          ...data,
+          source: {
+            ...data.source,
+            label: sourceNode?.data?.label ?? data.source?.label,
+            outputField: "param",
+          },
+          target: {
+            ...data.target,
+            label: targetNode?.data?.label ?? data.target?.label,
+            inputField: "param",
+          },
+          inputIndex: -1,
+          outputIndex: -1,
+        };
+      }
+
+      const outputIndex = data.outputIndex;
+      const inputIndex = data.inputIndex;
+      const outputField = sourceNode?.data?.outputs?.[outputIndex] ?? null;
+      const inputField = targetNode?.data?.inputs?.[inputIndex] ?? null;
+
+      const isFieldsMatch = matchFields(inputField, outputField);
+
+      return {
+        ...data,
+        source: {
+          ...data.source,
+          label: sourceNode?.data?.label ?? data.source?.label,
+          outputField
+        },
+        target: {
+          ...data.target,
+          label: targetNode?.data?.label ?? data.target?.label,
+          inputField
+        },
+        isFieldsMatch,
+        outputIndex,
+        inputIndex
+      };
+    }, [isHovered, data, getNodes]);
+
     const edgeStyle = {
         stroke: data?.color || "",
         strokeWidth: isHovered || data?.isHighlighted ? 16 : data?.width || 2,
@@ -92,7 +154,7 @@ export default function CustomEdge({
                         position: "absolute",
                         transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
                         pointerEvents: "all",
-                        zIndex: 0,
+                        zIndex: 9999,
                     }}
                     className="edge-label-renderer__custom-edge nodrag nopan"
                 >
@@ -106,47 +168,40 @@ export default function CustomEdge({
                             transition: "width 0.1s ease-in-out",
                         }}
                     />
-                    <div
+                    {isHovered && (
+                      <div
                         style={{
-                            backgroundColor: "black",
-                            color: "#fff",
-                            borderRadius: "6px",
-                            padding: "0 5px",
-                            /* Position the tooltip */
-                            position: "absolute",
-                            fontSize: 6,
-                            zIndex: 1,
-                            opacity: isHovered ? 0.8 : 0,
-                            transition: "opacity 250ms",
-                            left: 25,
-                            top: 25,
+                          position: "fixed",
+                          left: 25,
+                          top: 25,
+                          display: "inline-block",     // shrink to fit content
+                          whiteSpace: "nowrap",        // prevent text from wrapping
+                          backgroundColor: "black",
+                          color: "#fff",
+                          borderRadius: 6,
+                          padding: "5px 15px",
+                          fontSize: 8,
+                          zIndex: 9999,
+                          pointerEvents: "none",
+                          opacity: 0.7,
                         }}
-                    >
-                        <h5>Source</h5>
-                        {Object.entries(data.source)
-                          .filter(([k]) => k === "id" || k === "data")
-                          .map(([k, v]) =>
-                            k === "data" ? (
-                              <p key={k}>Label: {v.label}</p>
-                            ) : (
-                              <p key={k}>
-                                {k}: {v}
-                              </p>
-                            )
+                      >
+                        <h5 style={{ margin: 0 }}>
+                          {liveData.source?.label} {"=>"} {liveData.target?.label}
+                        </h5>
+                        <p style={{ margin: 0 }}>
+                          {liveData.source.outputField &&
+                            `OUT${liveData.outputIndex + 1}: ${liveData.source.outputField}`}{" "}
+                          {"=>"}{" "}
+                          {liveData.target.inputField &&
+                            `IN${liveData.inputIndex + 1}: ${liveData.target.inputField}`}
+                        </p>
+                        {liveData.isFieldsMatch
+                          ? <p style={{margin: 1, color: "greenyellow"}}>Match Success</p>
+                          : <p style={{margin: 1, color: "orangered"}}>Match Error</p>
+                        }
+                      </div>
                           )}
-                        <h5>Target</h5>
-                        {Object.entries(data.target)
-                          .filter(([k]) => k === "id" || k === "data")
-                          .map(([k, v]) =>
-                            k === "data" ? (
-                              <p key={k}>Label: {v.label}</p>
-                            ) : (
-                              <p key={k}>
-                                {k}: {v}
-                              </p>
-                            )
-                          )}
-                    </div>
                 </div>
             </EdgeLabelRenderer>
         </g>

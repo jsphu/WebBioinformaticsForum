@@ -100,7 +100,7 @@ function ParametersNode({ data, id }) {
     return (
         <div className="parameter-node" style={divStyle}>
             <label style={{ fontSize: "30px" }}>{data.label}</label>
-            <SettingsButton onClick={handleOpen} />
+            <SettingsButton onClick={handleOpen} buttonStyle="settings-button-config" />
             <ParametersConfig
                 isOpen={isConfigOpen}
                 onClose={handleClose}
