@@ -450,6 +450,8 @@ export default function Flow() {
   const [comments, setComments] = useState([]);
 
   useEffect(() => {
+    if (!id) return;
+
     axiosService
       .get(`/api/pipelines/${id}/comments/`)
       .then((res) => setComments(res.data.results))

@@ -185,7 +185,7 @@ export default memo(({ data, id }) => {
                 description: config.description,
                 inputs: config.inputs,
                 outputs: config.outputs,
-                paramaters: config.params,
+                paramaters: config.parameters,
               },
             }
           : node,

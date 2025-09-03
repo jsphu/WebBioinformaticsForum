@@ -115,7 +115,6 @@ export default function ConfigPanel({
   const handleParamChange = (e, index, fieldType) => {
     const field = e.target.value;
 
-    console.log(field, index, fieldType);
     setConfig((prev) => ({
       ...prev,
       parameters: prev.parameters.map((parameter, i) =>

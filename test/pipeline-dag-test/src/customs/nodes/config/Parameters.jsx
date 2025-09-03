@@ -89,6 +89,11 @@ export default function Parameters({ parameters, handleChange, onRemove, onAdd }
     }
   };
 
+  const handleParamKeyChange = (e, index) => {
+    handleChange(e, index, "key");
+    console.log("Parameters - ", index);
+  }
+
   return (
     <>
       <div>
@@ -112,7 +117,7 @@ export default function Parameters({ parameters, handleChange, onRemove, onAdd }
                   <td>
                     <Form.Control
                       value={param.key}
-                      onChange={(e) => handleChange(e, index, "key")}
+                      onChange={(e) => handleParamKeyChange(e, index)}
                       placeholder="parameter key"
                       size="sm"
                     />
