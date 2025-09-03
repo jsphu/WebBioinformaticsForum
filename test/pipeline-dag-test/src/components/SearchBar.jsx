@@ -14,14 +14,22 @@ export default function SearchBar() {
     const term = e.target.value;
     setSearchTerm(term);
 
-    if (term.length === 0) {
-      setShowDropdown(false);
+    // Remove everything except letters, digits, and spaces
+    const cleaned = term.replace(/[^a-z0-9\s]/gi, "").trim().toLowerCase();
+
+    // If nothing legit left, stop
+    if (cleaned.length === 0) {
       setFilteredTopics([]);
       return;
     }
 
-    // split into words, allow repeated words
-    const words = term.trim().toLowerCase().split(/\s+/);
+    // Split into words
+    const words = cleaned.split(/\s+/);
+
+    if (words.length === 0) {
+      setFilteredTopics([]);
+      return;
+    }
 
     const scoredTopics = cachedTopics
       .map((topic) => {

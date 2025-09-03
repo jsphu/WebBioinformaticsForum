@@ -3,14 +3,14 @@ import axiosService from "../../helpers/axios";
 import { useUser } from "../../hooks/UserContext";
 import { Button } from "react-bootstrap";
 
-export default function LikeButton({ contentType, contentId, likesCount, commentId }) {
+export default function LikeButton({ contentType, contentId, commentId }) {
   const { user } = useUser();
   const username = user?.username;
 
   const contentURL = commentId ? `/api/${contentType}/${contentId}/comments/${commentId}` : `/api/${contentType}/${contentId}`;
 
   const [liked, setLiked] = useState(false);
-  const [currentLikesCount, setCurrentLikesCount] = useState(likesCount || 0);
+  const [currentLikesCount, setCurrentLikesCount] = useState(0);
 
   // Check if user already liked
   useEffect(() => {
@@ -19,6 +19,7 @@ export default function LikeButton({ contentType, contentId, likesCount, comment
       if (res.status === 200) {
         const userLiked = res.data.some(like => like.user.username === username);
         setLiked(userLiked);
+        setCurrentLikesCount(res.data.length || 0);
       }
     })
     .catch(err => console.error(err));

@@ -1,3 +1,35 @@
+.config-overlay {
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  inset: 0;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  min-width: 400px;
+}
+
+.config-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.config-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.config-container.open {
+  opacity: 1;
+  transform: scale(1);
+}
+
 .popup-overlay {
   pointer-events: none;
   position: fixed;
@@ -136,11 +168,11 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-.settings-button-config {
+.settings-button.config {
   background-image: url('https://cdn-icons-png.flaticon.com/512/3524/3524659.png');
 }
 
-.settings-button-parameters {
+.settings-button.parameters {
   background-image: url('https://cdn-icons-png.flaticon.com/512/3524/3524660.png');
 }
 

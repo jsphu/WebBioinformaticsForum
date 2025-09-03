@@ -26,7 +26,7 @@ class ParameterSerializer(PIPESerializer):
             'id', 'owner', 'key', 'value',
             'default_value', 'value_type',
             'is_edited', 'created_at', 'updated_at',
-            'version_history'
+            'version_history', 'is_required'
         ]
         read_only_fields = ["is_edited"]
 

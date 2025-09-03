@@ -2,7 +2,7 @@ import React from "react";
 import { Toast, ToastContainer } from "react-bootstrap";
 
 function Toaster(props) {
-    const { showToast, title, message, onClose, type } = props;
+    const { showToast, title, message, onClose, type, delay } = props;
 
     return (
         <ToastContainer
@@ -12,7 +12,7 @@ function Toaster(props) {
             <Toast
                 onClose={onClose}
                 show={showToast}
-                delay={3000}
+                delay={delay}
                 autohide
                 bg={type}
             >

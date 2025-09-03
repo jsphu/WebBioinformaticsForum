@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import axiosService from "../helpers/axios";
-import Toaster from "../components/Toaster";
 import { useUser } from "../hooks/UserContext";
 import VersionField from "./VersionField";
+import { useToaster } from "../hooks/ToasterContext";
 
 export default function SavePipeline(props) {
 
@@ -11,14 +11,12 @@ export default function SavePipeline(props) {
 
   const [show, setShow] = useState(false);
   const [validated, setValidated] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState("");
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [charCounter, setCharCounter] = useState(0);
   const [titleCharCounter, setTitleCharCounter] = useState(0);
   const { user } = useUser();
+  const { setToaster } = useToaster();
 
   const [form, setForm] = useState({ description: "", pipelineTitle: "", version: "" });
 
@@ -93,16 +91,20 @@ export default function SavePipeline(props) {
     };
 
     try {
+      let toasterMessage;
       if (!id) {
         await axiosService.post("api/pipelines/", payload);
-        setToastMessage("Pipeline created.");
+        toasterMessage = "Pipeline created.";
       } else {
         await axiosService.put(`api/pipelines/${id}/`, payload);
-        setToastMessage("Pipeline updated.");
+        toasterMessage = "Pipeline updated.";
       }
-
-      setToastType("success");
-      setShowToast(true);
+      setToaster({
+        title: "Pipeline",
+        message: toasterMessage,
+        type: "success",
+        show: true,
+      })
       setForm({});
       setCharCounter(0);
       setTitleCharCounter(0);
@@ -112,9 +114,12 @@ export default function SavePipeline(props) {
       localStorage.removeItem("pipelineData");
     } catch (err) {
       console.error(err);
-      setToastMessage("Error saving pipeline.");
-      setToastType("danger");
-      setShowToast(true);
+      setToaster({
+        title: "Pipeline",
+        message: "Error saving pipeline.",
+        type: "danger",
+        show: true,
+      })
     }
   };
 
@@ -187,13 +192,6 @@ export default function SavePipeline(props) {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Toaster
-        title="Submitted!"
-        message={toastMessage}
-        showToast={showToast}
-        type={toastType}
-        onClose={() => setShowToast(false)}
-      />
     </>
   );
 }

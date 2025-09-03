@@ -3,10 +3,10 @@ import { createContext, useContext, useState } from 'react';
 const DnDContext = createContext([null, (_) => {}]);
 
 export const DnDProvider = ({ children }) => {
-  const [type, setType] = useState(null);
+  const [data, setData] = useState({});
 
   return (
-    <DnDContext.Provider value={[type, setType]}>
+    <DnDContext.Provider value={[data, setData]}>
       {children}
     </DnDContext.Provider>
   );

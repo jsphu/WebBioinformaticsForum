@@ -22,7 +22,7 @@ class OpineViewSet(ModelViewSet):
         "post_pk": "forums_announce.AnnounceModel", # POST MODEL
         "share_pk": "forums_amplify.AmplifyModel", # SHARE/REPOST MODEL
         "parameter_pk": "pipelines_parameter.ParameterModel", # PARAMETER MODEL
-        "process_pk": "pipelines_process.ProcessesModel", # PROCESS MODEL
+        "process_pk": "pipelines_process.ProcessModel", # PROCESS MODEL
         "pipeline_pk": "pipelines_pipeline.PipelineModel", # PIPELINE MODEL
     }
 

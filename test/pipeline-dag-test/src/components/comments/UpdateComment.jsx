@@ -1,8 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Button, Modal, Form, Dropdown } from "react-bootstrap";
 import axiosService from "../../helpers/axios";
-
-import { ToasterContext } from "../Layout";
+import { useToaster } from "../../hooks/ToasterContext";
 
 function UpdateComment(props) {
     const { contentType, contentId, comment } = props;
@@ -11,7 +10,7 @@ function UpdateComment(props) {
     const [form, setForm] = useState({
         content: comment.content,
     });
-    const { setToaster } = useContext(ToasterContext);
+    const { setToaster } = useToaster();
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);

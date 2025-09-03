@@ -1,12 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Image, Card, Dropdown } from "react-bootstrap";
 import { dateFormat } from "../../utils";
 import axiosService from "../../helpers/axios";
 import { useUser } from "../../hooks/UserContext";
-import { ToasterContext } from "../Layout";
 import { Link } from "react-router-dom";
 import LikeButton from "../buttons/LikeButton";
 import UpdateComment from "./UpdateComment";
+import { useToaster } from "../../hooks/ToasterContext";
 
 const MoreToggleIcon = React.forwardRef(({ onClick }, ref) => (
   <Link
@@ -23,7 +23,7 @@ const MoreToggleIcon = React.forwardRef(({ onClick }, ref) => (
 
 function Comment(props) {
   const { contentType, contentId, comment } = props;
-  const { setToaster } = useContext(ToasterContext);
+  const { setToaster } = useToaster();
 
   const { user } = useUser();
   const isUser = user.username === comment.author.username;

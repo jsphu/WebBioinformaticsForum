@@ -1,3 +1,11 @@
+.process-node {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 125px;
+  font-family: "Arial", sans-serif; /* Modern font */
+}
+
 .custom-node {
     display: flex;
     flex-direction: column;
@@ -111,4 +119,18 @@
     width: 20%;
     max-width: 250px;
   }
+}
+
+.node-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9; /* Light background for the node */
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 15px; /* Rounded corners */
+    padding: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    text-align: center;
+    font-family: "Arial", sans-serif; /* Modern font */
 }

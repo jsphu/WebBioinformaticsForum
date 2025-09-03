@@ -75,6 +75,7 @@ export default function CreateNewNode({ isPanel }) {
                     </option>
                     <option value="parametersNode">Parameters</option>
                     <option value="resultNode">Results</option>
+                    <option value="processNode">Process</option>
                 </select>
             </div>
             {typeValue !== "resultNode" && (

@@ -9,7 +9,7 @@ class ProcessModel(PIPEAbstractModel):
     _owner_related_name = "process_owner"
     _origin_related_name = "origin_process"
     _tracked_fields = [
-        'process_name', 'description', 'version'
+        'process_name', 'description', 'version', 'inputs', 'outputs'
     ] # Field to track versions
 
     parameters = models.ManyToManyField(
@@ -22,6 +22,10 @@ class ProcessModel(PIPEAbstractModel):
     description = models.TextField(max_length=1000, blank=True)
 
     version = models.CharField(max_length=64, default="0.0.1")
+
+    inputs = models.JSONField(default=list, blank=True)
+
+    outputs = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return f"{self.process_name}"

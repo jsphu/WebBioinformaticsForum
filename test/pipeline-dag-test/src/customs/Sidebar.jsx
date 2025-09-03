@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useDnD } from "../hooks/DnDContext";
 import CreateNewNode from "./nodes/CreateNewNode";
 import { useFadeTransition } from "../hooks/animations"
-import BlankNode from "./nodes/BlankNode";
-import { createNodeObject } from "../hooks/useNodeCreator";
 import axiosService from "../helpers/axios";
+import NodeField from "./NodeField";
+import SearchProcessBar from "./SearcProcessBar";
+import SearchParameterBar from "./SearcParameterBar";
+import { useDnD } from "../hooks/DnDContext";
+import { useParameter } from "../hooks/ParameterContext";
 
-export default function Sidebar({ isOpen }) {
-  const [_, setType] = useDnD();
+export default function Sidebar({ nodesData ,isOpen }) {
 
   const { shouldRender, isVisible } = useFadeTransition(isOpen, 400);
 
-  const onDragStart = (event) => {
-    setType("customNode");
-    event.dataTransfer.effectAllowed = "move";
-  };
-
   const [processes, setProcesses] = useState([]);
+  const [data, setData] = useDnD();
+  const { parameters } = useParameter();
 
   useEffect(() => {
     axiosService
@@ -25,7 +23,10 @@ export default function Sidebar({ isOpen }) {
       .catch((err) => console.error(err));
   }, [])
 
-  const blankNode = createNodeObject("customNode", 0, 0, 0, "Process");
+  const onDragStart = (event, node) => {
+    setData(node);
+    event.dataTransfer.effectAllowed = "move";
+  };
 
   if (!shouldRender) return;
 
@@ -35,17 +36,19 @@ export default function Sidebar({ isOpen }) {
         <CreateNewNode isPanel={true} />
       </div>
       <div className="description">
-        Drag nodes.
+        Current Processes
       </div>
-      {processes.map((process, index) => (
+      { nodesData.map((node, index) => (
         <div
           key={index}
-          onDragStart={onDragStart}
+          onDragStart={(e) => onDragStart(e, node)}
           draggable
         >
-          <BlankNode data={{ ...blankNode, data: { ...blankNode.data, label: process.process_name } }} process={process} />
+          <NodeField nodeData={node} />
         </div>
-      ))}
+      )) }
+      <SearchProcessBar processes={processes} />
+      <SearchParameterBar parameters={parameters} />
     </aside>
   );
 }

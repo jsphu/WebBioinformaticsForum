@@ -22,12 +22,17 @@ import ResultNode from "./nodes/ResultNode";
 import CreateNewNode from "./nodes/CreateNewNode";
 import CustomEdge from "./edges";
 import ParametersNode from "./nodes/ParametersNode";
+import ProcessNode from "./nodes/ProcessNode.jsx";
 import SavePipeline from "./SavePipeline.jsx"
 import axiosService from "../helpers/axios";
 import { useUser } from "../hooks/UserContext";
 import { useDnD, DnDProvider } from "../hooks/DnDContext.jsx";
 import Sidebar from "./Sidebar.jsx";
 import { useNodeCreator } from "../hooks/useNodeCreator.js";
+import Comment from "../components/comments/Comment.jsx";
+import CreateComment from "../components/comments/CreateComment.jsx";
+import { useToaster } from "../hooks/ToasterContext.jsx";
+import { ParameterProvider } from "../hooks/ParameterContext.jsx";
 
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
@@ -38,14 +43,15 @@ const nodeTypes = {
   inputNode: InputNode,
   outputNode: OutputNode,
   parametersNode: ParametersNode,
+  processNode: ProcessNode,
 };
 
 const edgeTypes = {
   customEdge: CustomEdge,
 };
 
-function FlowProvider() {
-  const { id } = useParams();
+function FlowProvider(props) {
+  const { id, comments } = props;
 
   const { user } = useUser();
 
@@ -54,8 +60,9 @@ function FlowProvider() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const { screenToFlowPosition, getNodes } = useReactFlow();
-  const [type, setType] = useDnD();
+  const [data, setData] = useDnD();
   const [isOpen, setIsOpen] = useState(false);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
   const [pipelineData, setPipelineData] = useState({
     flowData: { nodes: [], edges: [] },
@@ -76,7 +83,9 @@ function FlowProvider() {
       }
   });
 
-  const { createNode } = useNodeCreator(getNodes, setNodes)
+  const { createNode, loadNode, loadProcessNode } = useNodeCreator(getNodes, setNodes)
+
+  const { setToaster } = useToaster();
 
   const setAndLoadFlowDataFromVersionHistoryId = (versionId) => {
     try {
@@ -170,7 +179,7 @@ function FlowProvider() {
       .catch((err) => console.error(err));
   }, [id, loadFlowData, user]);
 
-  const flowWidth = 2000;
+  const flowWidth = 1375;
   const flowHeight = 780;
   const nodeWidth = 350;
   const nodeHeight = 200;
@@ -184,20 +193,39 @@ function FlowProvider() {
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
-      if (!type) return;
+      if (!data) return;
+
+      if (!data.process_name) {
+        setToaster({
+          title: "Invalid Drop",
+          message: "Parameters can only be dropped inside a node's configuration panel.",
+          type: "warning",
+          show: true
+        });
+        return;
+      }
 
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
-      createNode(type, position.x, position.y);
+      loadProcessNode(data, position.x, position.y);
+      setToaster({
+        title: "Process",
+        message: "New process added.",
+        type: "success",
+        show: true
+      })
     },
-    [screenToFlowPosition, type, createNode]
+    [screenToFlowPosition, data, loadProcessNode]
   );
 
-  const onDragStart = (event, nodeType) => {
-    setType(nodeType);
-    event.dataTransfer.setData('text/plain', nodeType);
+  const onDragStart = (event, data) => {
+    // This data variable should be the 'parameter' object you want to drop.
+    // Ensure this object is the full parameter data, not just a simple string.
+    setData(data);
+    // Serialize the data to a JSON string
+    event.dataTransfer.setData('application/json', JSON.stringify(data));
     event.dataTransfer.effectAllowed = 'move';
   };
 
@@ -344,30 +372,46 @@ function FlowProvider() {
           >
             <Controls />
             <Panel position="bottom-left" style={{ padding: "1px 40px" }}>
-              <button
-                className="xy-theme__button"
-                onClick={() => onLayout("TB")}
-              >
-                vertical layout
-              </button>
-              <button
-                className="xy-theme__button"
-                onClick={() => onLayout("LR")}
-              >
-                horizontal layout
-              </button>
+              <div>
+                <button
+                  className="xy-theme__button"
+                  onClick={() => onLayout("TB")}
+                >
+                  vertical
+                </button>
+              </div>
+              <div>
+                <button
+                  className="xy-theme__button"
+                  onClick={() => onLayout("LR")}
+                >
+                  horizontal
+                </button>
+              </div>
             </Panel>
             <Panel position="top-right">
               <SavePipeline id={id} data={pipelineData} />
             </Panel>
             <Panel position="top-left">
-              <button
-                className={`xy-theme__button x-turning-to-plus ${isOpen ? "open" : "closed"}`}
-                onClick={handleSidebar}
-              >
-                <span className="line horizontal" />
-                <span className="line vertical" />
-              </button>
+              <div>
+                <button
+                  className={`xy-theme__button x-turning-to-plus ${isOpen ? "open" : "closed"}`}
+                  onClick={handleSidebar}
+                >
+                  <span className="line horizontal" />
+                  <span className="line vertical" />
+                </button>
+              </div>
+              <div>
+                <button
+                  className={`xy-theme__button x-turning-to-plus ${isCommentsOpen ? "open" : "closed"}`}
+                  onClick={() => setIsCommentsOpen(!isCommentsOpen)}
+                >
+                  <small>TT</small>
+                  <span className="line horizontal" />
+                  <span className="line vertical" />
+                </button>
+              </div>
             </Panel>
             <Panel position="bottom-center">
             <p>{pipelineData.pipelineTitle || "New"} by: {pipelineData?.owner?.username || user?.username || "unkown"} v{ pipelineData.version }</p>
@@ -388,17 +432,39 @@ function FlowProvider() {
             <Background />
           </ReactFlow>
         </div>
-        <Sidebar nodeTypes={nodeTypes} isOpen={isOpen} />
+        <Sidebar nodesData={pipelineData.flowData.nodes} isOpen={isOpen} />
+        {isCommentsOpen && <div style={{width: "375px", marginLeft: "20px"}}>
+          { comments.map((comment, index) => {
+            return <Comment key={index} contentType="pipelines" contentId={id} comment={comment} />;
+          }) }
+          <CreateComment contentType="pipelines" contentId={id} />
+        </div>
+        }
     </>
   );
 };
 
 export default function Flow() {
+  const { id } = useParams();
+
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    axiosService
+      .get(`/api/pipelines/${id}/comments/`)
+      .then((res) => setComments(res.data.results))
+      .catch((err) => console.error(err));
+  }, [id]);
+
   return (
-    <ReactFlowProvider>
-      <DnDProvider>
-        <FlowProvider />
-      </DnDProvider>
-    </ReactFlowProvider>
+    <>
+      <ReactFlowProvider>
+        <DnDProvider>
+          <ParameterProvider>
+            <FlowProvider id={id} comments={comments} />
+          </ParameterProvider>
+        </DnDProvider>
+      </ReactFlowProvider>
+    </>
   )
 }

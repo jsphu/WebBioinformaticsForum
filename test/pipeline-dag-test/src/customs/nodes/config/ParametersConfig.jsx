@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AddMoreButton from "../buttons/AddMoreButton";
 import { useFadeTransition } from "../../../hooks/animations";
+import ScriptField from "../../ScriptField";
 
 export default function ParametersConfig({
     isOpen,
@@ -111,19 +112,34 @@ export default function ParametersConfig({
                             }
                             style={{ width: "50px", padding: "5px" }}
                         />
-                        <input
-                            type="text"
-                            placeholder="Value"
-                            value={param.value}
-                            onChange={(e) =>
-                                handleParamChange(
-                                    index,
-                                    "value",
-                                    e.target.value,
-                                )
-                            }
-                            style={{ width: "100px" }}
-                        />
+                        {param.value.includes('\n')
+                          ? <ScriptField
+                              value={param.value}
+                              setValue={setConfig}
+                              fontSize={8}
+                              rows={1}
+                              onChange={(e) =>
+                                  handleParamChange(
+                                      index,
+                                      "value",
+                                      e.target.value,
+                                  )
+                              }
+                            />
+                          : <input
+                              type="text"
+                              placeholder="Value"
+                              value={param.value}
+                              onChange={(e) =>
+                                  handleParamChange(
+                                      index,
+                                      "value",
+                                      e.target.value,
+                                  )
+                              }
+                              style={{ width: "100px" }}
+                            />
+                        }
                         <button
                             onClick={() => {
                                 setParamList((prev) =>

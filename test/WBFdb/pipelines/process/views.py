@@ -31,6 +31,11 @@ class ProcessViewSet(PIPEViewSet):
 
         return obj
 
+    def perform_create(self, serializer):
+        serializer.save(
+            owner=self.request.user,
+        )
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(
             data=request.data

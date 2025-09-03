@@ -21,6 +21,8 @@ class ProcessSerializer(PIPESerializer):
 
     parameters_count = serializers.SerializerMethodField()
 
+    parameters = ParameterSerializer(many=True)
+
     def get_parameters_count(self, obj):
         parameters = obj.parameters
         return parameters.count()
@@ -44,17 +46,14 @@ class ProcessSerializer(PIPESerializer):
             'id', 'owner', 'process_name',
             'is_edited', 'created_at', 'updated_at',
             'description', 'version', 'parameters_count',
-            'parameters', 'version_history'
+            'parameters', 'version_history',
+            'originated_from', 'inputs', 'outputs'
         ]
-
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         owner = WBFUserModel.objects.get_object_by_public_id(
             rep["owner"]
         )
-        parameters = instance.parameters.all()
-        rep["parameters"] = {p.key: p.value for p in parameters}
-
         rep["owner"] = WBFUserSerializer(owner).data
 
         return rep
