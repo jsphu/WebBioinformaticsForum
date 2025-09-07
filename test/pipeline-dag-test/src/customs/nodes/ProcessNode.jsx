@@ -1,238 +1,50 @@
-import { Handle, Position, useStore, useReactFlow } from "@xyflow/react";
-import React, { memo, useState, useCallback, useEffect } from "react";
+import { Handle, Position, useStore } from "@xyflow/react";
+import React, { memo, useReducer, useCallback } from "react";
 import ConfigPanel from "./config/ConfigPanel";
+import SettingsButton from "./buttons/settings";
+import { useReactFlow } from "@xyflow/react";
 
 const zoomSelector = (s) => s.transform[2] >= 0.9;
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "OPEN":
+      return true;
+    case "CLOSE":
+      return false;
+    default:
+      return state;
+  }
+};
+
 export default memo(({ data, id }) => {
+
   const showContent = useStore(zoomSelector);
+  const [isConfigOpen, dispatch] = useReducer(reducer, false);
+  const { setNodes } = useReactFlow();
 
-  const [processData, setProcessData] = useState(data);
-  const [configData, setConfigData] = useState(processData);
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
-
-  const { setNodes, getNodes, getEdges, setEdges } = useReactFlow();
-
-  const handleDraggable = useCallback(() => {
+  const handleDraggable = useCallback((state) => {
     setNodes((nds) =>
       nds.map((node) =>
         node.id === id
           ? {
               ...node,
-              draggable: !isConfigOpen, // Fixed logic: draggable when config is NOT open
+              draggable: state,
             }
           : node,
       ),
     );
-  }, [id, setNodes, isConfigOpen]);
-
-  const handleAddInput = useCallback(() => {
-    setNodes(nds =>
-      nds.map(node =>
-        node.id === id
-          ? {
-            ...node,
-            data: {
-              ...node.data,
-              inputs: [...(node.data.inputs || []), { filename: "", type: "" }]
-            }
-          }
-          : node
-      ))
-
-    // Update local processData state to trigger ConfigPanel re-render
-    setProcessData(prev => ({
-      ...prev,
-      inputs: [...(prev.inputs || []), { filename: "", type: "" }]
-    }));
   }, [id, setNodes]);
 
-  const handleAddOutput = useCallback(() => {
-    setNodes(nds =>
-      nds.map(node =>
-        node.id === id
-          ? {
-            ...node,
-            data: {
-              ...node.data,
-              outputs: [...(node.data.outputs || []), { filename: "", type: "" }]
-            }
-          }
-          : node
-      ))
-
-    // Update local processData state to trigger ConfigPanel re-render
-    setProcessData(prev => ({
-      ...prev,
-      outputs: [...(prev.outputs || []), { filename: "", type: "" }]
-    }));
-  }, [id, setNodes]);
-
-  const handleAddParameter = useCallback((e, parameter) => {
-    let newParameter;
-
-    console.log(e, parameter);
-    if (!parameter) {
-      newParameter = {
-          id: "",
-          key: "",
-          value: "",
-          value_type: "string",
-          default_value: "",
-          is_required: false,
-          owner: null,
-          version_history: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-      };
-    }
-    else {
-      newParameter = parameter;
-    }
-
-    setNodes(nds =>
-      nds.map(node =>
-        node.id === id
-          ? {
-            ...node,
-            data: {
-              ...node.data,
-              parameters: [...(node.data.parameters || []), newParameter]
-            }
-          }
-          : node
-      ))
-
-    // Update local processData state to trigger ConfigPanel re-render
-    setProcessData(prev => ({
-      ...prev,
-      parameters: [...(prev.parameters || []), newParameter]
-    }));
-  }, [id, setNodes]);
-
-  const handleRemoveInput = useCallback((index) => {
-    setNodes(nds =>
-      nds.map(node =>
-        node.id === id
-          ? {
-            ...node,
-            data: {
-              ...node.data,
-              inputs: node.data.inputs.filter((_, i) => i !== index)
-            }
-          }
-          : node
-      ))
-
-    // Update local processData state
-    setProcessData(prev => ({
-      ...prev,
-      inputs: prev.inputs.filter((_, i) => i !== index)
-    }));
-  }, [id, setNodes]);
-
-  const handleRemoveOutput = useCallback((index) => {
-    setNodes(nds =>
-      nds.map(node =>
-        node.id === id
-          ? {
-            ...node,
-            data: {
-              ...node.data,
-              outputs: node.data.outputs.filter((_, i) => i !== index)
-            }
-          }
-          : node
-      ))
-
-    // Update local processData state
-    setProcessData(prev => ({
-      ...prev,
-      outputs: prev.outputs.filter((_, i) => i !== index)
-    }));
-  }, [id, setNodes]);
-
-  const handleRemoveParameter = useCallback((index) => {
-    setNodes(nds =>
-      nds.map(node =>
-        node.id === id
-          ? {
-            ...node,
-            data: {
-              ...node.data,
-              parameters: node.data.parameters.filter((_, i) => i !== index)
-            }
-          }
-          : node
-      ))
-
-    // Update local processData state
-    setProcessData(prev => ({
-      ...prev,
-      parameters: prev.parameters.filter((_, i) => i !== index)
-    }));
-  }, [id, setNodes]);
-
-  const handleSave = useCallback((config) => {
-    setNodes((nodes) =>
-      nodes.map((node) =>
-        node.id === id
-          ? {
-              ...node,
-              data: {
-                ...node.data,
-                process_name: config.process_name,
-                description: config.description,
-                inputs: config.inputs,
-                outputs: config.outputs,
-                paramaters: config.parameters,
-              },
-            }
-          : node,
-      ),
-    );
-    setProcessData(config);
-    setIsConfigOpen(false);
-  }, [id, setNodes]);
-
-  const handleOpen = useCallback((e) => {
+  const handleOpen = (e) => {
     e?.preventDefault();
-    setIsConfigOpen(true);
-  }, []);
-
-  const handleCancel = useCallback((e) => {
+    dispatch({ type: "OPEN" });
+    handleDraggable(false);
+  }
+  const handleClose = (e) => {
     e?.preventDefault();
-    setIsConfigOpen(false);
-  }, []);
-
-  const handleDelete = useCallback(() => {
-    setIsConfigOpen(false);
-    setNodes((nds) => nds.filter((node) => node.id !== id));
-  }, [id, setNodes]);
-
-  // Update draggable state when config opens/closes
-  useEffect(() => {
-    handleDraggable();
-  }, [handleDraggable]);
-
-  function ConfigProvider() {
-    return (
-      <ConfigPanel
-        configData={processData}
-        onSave={handleSave}
-        onOpen={handleOpen}
-        onClose={handleCancel}
-        onDelete={handleDelete}
-        isOpen={isConfigOpen}
-        nodeId={id}
-        onAddInput={handleAddInput}
-        onAddOutput={handleAddOutput}
-        onRemoveInput={handleRemoveInput}
-        onRemoveOutput={handleRemoveOutput}
-        onAddParameter={handleAddParameter}
-        onRemoveParameter={handleRemoveParameter}
-      />
-    )
+    dispatch({ type: "CLOSE" });
+    handleDraggable(true);
   }
 
   if (!showContent && !isConfigOpen) return (
@@ -242,14 +54,19 @@ export default memo(({ data, id }) => {
       <div style={{ width: "100px" }} />
     </div>
   );
-  else if (isConfigOpen) return (
-    <ConfigProvider/>
-  )
-  else return (
-    <>
-        <ProcessNode processData={processData}/>
-        <ConfigProvider />
-    </>
+  return (
+    <div style={{ display: "unset" }}>
+        <ProcessNode processData={data}/>
+        {!isConfigOpen && <SettingsButton onClick={handleOpen} buttonStyle="config" />}
+        {isConfigOpen && <ConfigPanel
+          configData={data}
+          isOpen={isConfigOpen}
+          configView={dispatch}
+          nodeId={id}
+          onDraggable={handleDraggable}
+          onClose={handleClose}
+        />}
+    </div>
   );
 });
 

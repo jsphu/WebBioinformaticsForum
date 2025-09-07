@@ -14,7 +14,6 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
-import "@xyflow/react/dist/style.css";
 import CustomNode from "./nodes/CustomNode";
 import OutputNode from "./nodes/OutputNode";
 import InputNode from "./nodes/InputNode";
@@ -236,7 +235,8 @@ function FlowProvider(props) {
       const targetNode = nodes.find((node) => node.id === params.target);
 
       const isCustomEdge =
-        sourceNode?.type === "customNode" || targetNode?.type === "customNode";
+        sourceNode?.type === "processNode"
+        || targetNode?.type === "processNode";
 
       // Count existing input connections for this target
       const existingInputEdges = edges.filter(
@@ -249,9 +249,9 @@ function FlowProvider(props) {
       const outputIndex = existingOutputEdges.length;
 
       const sourcePosition =
-        sourceNode?.type === "customNode" ? Position.Right : Position.Bottom;
+        sourceNode?.type === "processNode" ? Position.Right : Position.Bottom;
       const targetPosition =
-        targetNode?.type === "customNode" ? Position.Left : Position.Top;
+        targetNode?.type === "processNode" ? Position.Left : Position.Top;
       // Add the edge with the appropriate type
       setEdges((els) =>
         addEdge(
@@ -372,6 +372,10 @@ function FlowProvider(props) {
           >
             <Controls />
             <Panel position="bottom-left" style={{ padding: "1px 40px" }}>
+
+            </Panel>
+            <Panel position="top-right">
+              <SavePipeline id={id} data={pipelineData} />
               <div>
                 <button
                   className="xy-theme__button"
@@ -389,9 +393,6 @@ function FlowProvider(props) {
                 </button>
               </div>
             </Panel>
-            <Panel position="top-right">
-              <SavePipeline id={id} data={pipelineData} />
-            </Panel>
             <Panel position="top-left">
               <div>
                 <button
@@ -402,7 +403,7 @@ function FlowProvider(props) {
                   <span className="line vertical" />
                 </button>
               </div>
-              <div>
+              {id && <div>
                 <button
                   className={`xy-theme__button x-turning-to-plus ${isCommentsOpen ? "open" : "closed"}`}
                   onClick={() => setIsCommentsOpen(!isCommentsOpen)}
@@ -411,7 +412,7 @@ function FlowProvider(props) {
                   <span className="line horizontal" />
                   <span className="line vertical" />
                 </button>
-              </div>
+              </div>}
             </Panel>
             <Panel position="bottom-center">
             <p>{pipelineData.pipelineTitle || "New"} by: {pipelineData?.owner?.username || user?.username || "unkown"} v{ pipelineData.version }</p>

@@ -44,7 +44,7 @@ export default function Sidebar({ nodesData ,isOpen }) {
           onDragStart={(e) => onDragStart(e, node)}
           draggable
         >
-          <NodeField nodeData={node} />
+          <NodeField nodeId={node.id} />
         </div>
       )) }
       <SearchProcessBar processes={processes} />

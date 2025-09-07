@@ -1,30 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button, Table, Form } from "react-bootstrap";
 import { useFadeTransition } from "../../../hooks/animations";
-import ScriptField from "../../ScriptField";
 import VersionField from "../../VersionField";
 import { useUser } from "../../../hooks/UserContext";
-import { useParameter } from "../../../hooks/ParameterContext";
-import SettingsButton from "../buttons/settings";
 import { useToaster } from "../../../hooks/ToasterContext";
 import Parameters from "./Parameters";
-import SearchParameterBar from "../../SearcParameterBar";
-import ParameterInfo from "../../ParameterInfo";
+import { useReactFlow } from "@xyflow/react";
 
 export default function ConfigPanel({
     configData,
     nodeId,
+    configView,
     isOpen,
-    onSave,
-    onOpen,
     onClose,
-    onDelete,
-    onAddInput,
-    onAddOutput,
-    onRemoveInput,
-    onRemoveOutput,
-    onAddParameter,
-    onRemoveParameter,
 }) {
 
   const [config, setConfig] = useState({
@@ -40,18 +28,194 @@ export default function ConfigPanel({
   const { setToaster } = useToaster();
   const { user } = useUser();
   const { shouldRender, isVisible } = useFadeTransition(isOpen, 300);
-  const { parameters } = useParameter();
+  const { setNodes } = useReactFlow();
 
   useEffect(() => {
-    if (!config || !Object.keys(config).length) {
+    if (config && (!config || !config.parameters?.length)) {
       setConfig({
-        ...configData,
-        inputs: configData?.inputs || [],
-        outputs: configData?.outputs || [],
-        parameters: configData?.parameters || [],
+        ...config,
+        inputs: config?.inputs || [],
+        outputs: config?.outputs || [],
+        parameters: config?.parameters || [],
       });
     }
-  }, [config, configData]);
+  }, [config]);
+
+
+  const handleAddInput = useCallback(() => {
+    setNodes(nds =>
+      nds.map(node =>
+        node.id === nodeId
+          ? {
+            ...node,
+            data: {
+              ...node.data,
+              inputs: [...(node.data.inputs || []), { filename: "", type: "" }]
+            }
+          }
+          : node
+      ))
+
+    // Update local processData state to trigger ConfigPanel re-render
+    setConfig(prev => ({
+      ...prev,
+      inputs: [...(prev.inputs || []), { filename: "", type: "" }]
+    }));
+  }, [nodeId, setNodes]);
+
+  const handleAddOutput = useCallback(() => {
+    setNodes(nds =>
+      nds.map(node =>
+        node.id === nodeId
+          ? {
+            ...node,
+            data: {
+              ...node.data,
+              outputs: [...(node.data.outputs || []), { filename: "", type: "" }]
+            }
+          }
+          : node
+      ))
+
+    // Update local processData state to trigger ConfigPanel re-render
+    setConfig(prev => ({
+      ...prev,
+      outputs: [...(prev.outputs || []), { filename: "", type: "" }]
+    }));
+  }, [nodeId, setNodes]);
+
+  const handleAddParameter = useCallback((parameter) => {
+    let newParameter;
+
+    if (!parameter) {
+      newParameter = {
+        id: null,
+        key: "",
+        value: "",
+        value_type: "string",
+        default_value: "",
+        is_required: false,
+        owner: null,
+        version_history: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    }
+    else newParameter = { ...parameter, owner: parameter.owner.id };
+
+    setNodes(nds =>
+      nds.map(node =>
+        node.id === nodeId
+          ? {
+            ...node,
+            data: {
+              ...node.data,
+              parameters: [...(node.data.parameters || []), newParameter]
+            }
+          }
+          : node
+      ))
+
+    // Update local processData state to trigger ConfigPanel re-render
+    setConfig(prev => ({
+      ...prev,
+      parameters: [...(prev.parameters || []), newParameter]
+    }));
+  }, [nodeId, setNodes]);
+
+  const handleRemoveInput = useCallback((index) => {
+    setNodes(nds =>
+      nds.map(node =>
+        node.id === nodeId
+          ? {
+            ...node,
+            data: {
+              ...node.data,
+              inputs: node.data.inputs.filter((_, i) => i !== index)
+            }
+          }
+          : node
+      ))
+
+    // Update local processData state
+    setConfig(prev => ({
+      ...prev,
+      inputs: prev.inputs.filter((_, i) => i !== index)
+    }));
+  }, [nodeId, setNodes]);
+
+  const handleRemoveOutput = useCallback((index) => {
+    setNodes(nds =>
+      nds.map(node =>
+        node.id === nodeId
+          ? {
+            ...node,
+            data: {
+              ...node.data,
+              outputs: node.data.outputs.filter((_, i) => i !== index)
+            }
+          }
+          : node
+      ))
+
+    // Update local processData state
+    setConfig(prev => ({
+      ...prev,
+      outputs: prev.outputs.filter((_, i) => i !== index)
+    }));
+  }, [nodeId, setNodes]);
+
+  const handleRemoveParameter = useCallback((index) => {
+    setNodes(nds =>
+      nds.map(node =>
+        node.id === nodeId
+          ? {
+            ...node,
+            data: {
+              ...node.data,
+              parameters: node.data.parameters.filter((_, i) => i !== index)
+            }
+          }
+          : node
+      ))
+
+    // Update local processData state
+    setConfig(prev => ({
+      ...prev,
+      parameters: prev.parameters.filter((_, i) => i !== index)
+    }));
+  }, [nodeId, setNodes]);
+
+  const handleSave = useCallback((config) => {
+    const newParams = config.parameters.map(p => ({
+        ...p,              // keep all other fields
+        owner: p.owner?.id || user?.id   // replace owner object with just the id
+      }));
+    setNodes((nodes) =>
+      nodes.map((node) =>
+        node.id === nodeId
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                owner: config?.owner?.id || user?.id,
+                process_name: config.process_name,
+                description: config.description,
+                inputs: config.inputs,
+                outputs: config.outputs,
+                paramaters: newParams,
+              },
+            }
+          : node,
+      ),
+    );
+    setConfig(config);
+  }, [nodeId, setNodes, user?.id]);
+
+  const handleDelete = useCallback(() => {
+    configView({ type: "CLOSE"});
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+  }, [nodeId, setNodes, configView]);
 
   const isUserOwner = user?.username === config?.owner?.username || false;
 
@@ -71,7 +235,7 @@ export default function ConfigPanel({
       type: "success",
       show: true,
     })
-    onSave(config);
+    handleSave(config);
   }
 
   const handleTitleCharLimit = (e) => {
@@ -117,45 +281,13 @@ export default function ConfigPanel({
 
     setConfig((prev) => ({
       ...prev,
-      parameters: prev.parameters.map((parameter, i) =>
-        i === index
-          ? { ...parameter, [fieldType]: field }
-          : parameter
+      parameters: (prev.parameters || []).map((parameter, i) =>
+        i === index ? { ...parameter, [fieldType]: field } : parameter
       ),
     }));
   };
 
-  const handleAddInputLocal = () => {
-    // Just call the parent handler - it will update the node data
-    // and trigger a re-render via configData prop change
-    onAddInput();
-  };
-
-  const handleAddOutputLocal = () => {
-    // Just call the parent handler - it will update the node data
-    // and trigger a re-render via configData prop change
-    onAddOutput();
-  };
-
-  const handleRemoveInputLocal = (index) => {
-    // Just call the parent handler
-    onRemoveInput?.(index);
-  };
-
-  const handleRemoveOutputLocal = (index) => {
-    // Just call the parent handler
-    onRemoveOutput?.(index);
-  };
-
-  const handleAddParamLocal = (parameter) => {
-    onAddParameter(parameter);
-  }
-
-  const handleRemoveParamLocal = (index) => {
-    onRemoveParameter(index);
-  }
-
-  if (!shouldRender) return <SettingsButton onClick={onOpen} buttonStyle="config" />;
+  if (!shouldRender) return null;
 
   const handleMouseDown = (e) => {
     e.stopPropagation(); // stop panning
@@ -202,12 +334,12 @@ export default function ConfigPanel({
                 name="input"
                 fields={config.inputs}
                 handleChange={handleInputChange}
-                onRemove={handleRemoveInputLocal}
+                onRemove={handleRemoveInput}
               />
               <Button
                 size="sm"
                 variant="primary"
-                onClick={handleAddInputLocal}
+                onClick={handleAddInput}
                 type="button"
               >
                 + Add Input
@@ -220,41 +352,31 @@ export default function ConfigPanel({
                 name="output"
                 fields={config.outputs}
                 handleChange={handleOutputChange}
-                onRemove={handleRemoveOutputLocal}
+                onRemove={handleRemoveOutput}
               />
               <Button
                 size="sm"
                 variant="primary"
-                onClick={handleAddOutputLocal}
+                onClick={handleAddOutput}
                 type="button"
               >
                 + Add Output
               </Button>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Parameters</Form.Label>
-              <SearchParameterBar parameters={parameters} />
               <Parameters
                 parameters={config.parameters}
                 handleChange={handleParamChange}
-                onRemove={handleRemoveParamLocal}
-                onAdd={handleAddParamLocal}
+                onRemove={handleRemoveParameter}
+                onAdd={handleAddParameter}
               />
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={handleAddParamLocal}
-                type="button"
-              >
-                + Add Parameter
-              </Button>
             </Form.Group>
           </Form>
 
 
           <div className="d-flex gap-2 mt-3">
-            <Button variant="danger" onClick={onDelete} type="button">Delete</Button>
-            <Button variant="secondary" onClick={onClose} type="button">Cancel</Button>
+            <Button variant="danger" onClick={handleDelete} type="button">Delete</Button>
+            <Button variant="secondary" onClick={onClose} type="button">Close</Button>
             <Button variant="primary" onClick={handleSubmit} type="button">Save</Button>
           </div>
 

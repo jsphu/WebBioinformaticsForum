@@ -94,7 +94,7 @@ export default function ProcessInfo(props) {
           <CreateComment contentType="processes" contentId={process.id} />
         </Modal.Body>
         <Modal.Footer>
-          {user?.username === process.owner.username && <Button onClick={handleDelete} style={{backgroundColor: "orangered"}}>Delete</Button>}
+          {user?.username === process?.owner?.username && <Button onClick={handleDelete} style={{backgroundColor: "orangered"}}>Delete</Button>}
           <LikeButton contentType="processes" contentId={process.id}/>
           <Button onClick={handleClose}>Close</Button>
         </Modal.Footer>

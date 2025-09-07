@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button, Modal, Table } from "react-bootstrap";
-import Toaster from "../components/Toaster";
-import InfoButton from "./nodes/buttons/InfoButton";
+import EditParameter from "./nodes/buttons/EditParameter";
 import ScriptField from "./ScriptField";
 import Comment from "../components/comments/Comment";
 import CreateComment from "../components/comments/CreateComment";
@@ -37,12 +36,17 @@ export default function ParameterInfo(props) {
       });
   }
 
+  // const prepareForSave = (param) => Object.entries(param).map(({ localId, ...rest }) => rest);
+
+  const payload = { ...parameter, owner: createMode ? user.id : parameter?.owner?.id };
+
   const handleSubmit = (e) => {
     setShow(false);
 
+
     if (createMode) {
       axiosService
-        .post(`/api/parameters/`, parameter)
+        .post(`/api/parameters/`, payload)
         .then(res => setToaster({
           title: "Parameter",
           message: "Parameter created successfully.",
@@ -58,7 +62,7 @@ export default function ParameterInfo(props) {
     }
     else if (updateMode) {
       axiosService
-        .put(`/api/parameters/${parameter.id}/`, parameter)
+        .put(`/api/parameters/${parameter.id}/`, payload)
         .then(res => setToaster({
           title: "Parameter",
           message: "Parameter updated successfully.",
@@ -84,7 +88,7 @@ export default function ParameterInfo(props) {
 
   return (
     <div>
-      <InfoButton onClick={handleShow} label={parameter?.key} />
+      <EditParameter onClick={handleShow} label={parameter?.key} />
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton className="border-0">
           <Modal.Title>{parameter?.key}</Modal.Title>
@@ -124,13 +128,13 @@ export default function ParameterInfo(props) {
             </tbody>
           </Table>
 
-          <Modal.Title style={{textAlign: "center"}}>Comments</Modal.Title>
+          {!createMode &&  <><Modal.Title style={{textAlign: "center"}}>Comments</Modal.Title>
           {comments.map((comment, index) => {
             return (
               <Comment key={index} contentType="parameters" contentId={parameter?.id} comment={comment} />
             )
           })}
-          <CreateComment contentType="parameters" contentId={parameter?.id} />
+          <CreateComment contentType="parameters" contentId={parameter?.id} /></>}
         </Modal.Body>
         <Modal.Footer>
           {user?.username === parameter?.owner?.username && (

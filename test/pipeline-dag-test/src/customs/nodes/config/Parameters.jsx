@@ -1,36 +1,38 @@
 import { useState } from "react";
 import ScriptEditModal from "./ScriptEditModal";
-import { Button, Form, Table } from "react-bootstrap";
+import { Button, Form, Table, Modal } from "react-bootstrap";
 import { useToaster } from "../../../hooks/ToasterContext";
 import ParameterInfo from "../../ParameterInfo";
+import { v4 as uuidv4 } from "uuid";
 
-export default function Parameters({ parameters, handleChange, onRemove, onAdd }) {
+export default function Parameters({ parameters, handleChange, onRemove, onAdd, isOpen }) {
   const [showScriptModal, setShowScriptModal] = useState(false);
   const [currentScriptIndex, setCurrentScriptIndex] = useState(null);
   const [currentScriptField, setCurrentScriptField] = useState(null);
   const { setToaster } = useToaster();
+  const [showModal, setShowModal] = useState(false);
 
+  // Open modal to edit multiline value
   const handleScriptEdit = (index, fieldType, currentValue) => {
     setCurrentScriptIndex(index);
     setCurrentScriptField(fieldType);
     setShowScriptModal(true);
   };
 
+  // Save edited multiline value
   const handleScriptSave = (newValue) => {
     if (currentScriptIndex !== null && currentScriptField) {
-      // Create a synthetic event to match the expected format
-      const syntheticEvent = {
-        target: { value: newValue }
-      };
-      handleChange(syntheticEvent, currentScriptIndex, currentScriptField);
+      handleChange({ target: { value: newValue } }, currentScriptIndex, currentScriptField);
     }
     setCurrentScriptIndex(null);
     setCurrentScriptField(null);
+    setShowScriptModal(false);
   };
 
+  // Render a value field (inline input or "Edit Script" button)
   const renderValueField = (param, index, fieldType, placeholder) => {
-    const value = param[fieldType] || "";
-    const hasNewlines = String(value).includes('\n');
+    const value = param[fieldType] ?? "";
+    const hasNewlines = String(value).includes("\n") || param.value_type.includes('multi') || param.value_type.includes('script');
 
     if (hasNewlines) {
       return (
@@ -39,7 +41,7 @@ export default function Parameters({ parameters, handleChange, onRemove, onAdd }
           variant="outline-primary"
           onClick={() => handleScriptEdit(index, fieldType, value)}
         >
-          Edit Script
+          Edit Value
         </Button>
       );
     }
@@ -50,15 +52,18 @@ export default function Parameters({ parameters, handleChange, onRemove, onAdd }
         onChange={(e) => handleChange(e, index, fieldType)}
         placeholder={placeholder}
         size="sm"
+        autoComplete="off"
       />
     );
   };
 
+  // Current value for ScriptEditModal
   const getCurrentScriptValue = () => {
     if (currentScriptIndex === null || !currentScriptField) return "";
-    return parameters[currentScriptIndex]?.[currentScriptField] || "";
+    return parameters[currentScriptIndex]?.[currentScriptField] ?? "";
   };
 
+  // Drag & drop handlers
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -71,32 +76,37 @@ export default function Parameters({ parameters, handleChange, onRemove, onAdd }
       const droppedData = e.dataTransfer.getData("text/plain");
       const newParameter = JSON.parse(droppedData);
 
+      // Require a key for dropped parameter
       if (!newParameter.key) {
         setToaster({
           title: "Invalid Drop",
-          message: "Failed to drop",
+          message: "Dropped parameter must have a key",
           type: "warning",
-          show: true
+          show: true,
         });
         return;
       }
 
-      if (onAdd) {
-        onAdd(newParameter);
-      }
+      onAdd?.(newParameter);
     } catch (error) {
       console.error("Failed to process dropped data:", error);
     }
   };
 
-  const handleParamKeyChange = (e, index) => {
-    handleChange(e, index, "key");
-    console.log("Parameters - ", index);
+
+  const handleAddParamLocal = (parameter) => {
+    onAdd(parameter);
   }
+
 
   return (
     <>
-      <div>
+      <Button onClick={() => setShowModal(true)}>Parameters</Button>
+      <Modal show={showModal} size="xl" >
+        <Modal.Header>
+          <Modal.Title>Parameters</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
         <Table striped bordered hover size="sm">
           <thead>
             <tr>
@@ -112,45 +122,42 @@ export default function Parameters({ parameters, handleChange, onRemove, onAdd }
           <tbody onDragOver={handleDragOver} onDrop={handleDrop}>
             {parameters.length > 0 ? (
               parameters.map((param, index) => (
-                <tr key={index}>
+                <tr key={param.id || uuidv4()}>
                   <td>{index}</td>
                   <td>
                     <Form.Control
-                      value={param.key}
-                      onChange={(e) => handleParamKeyChange(e, index)}
+                      value={param.key ?? ""}
+                      onChange={(e) => handleChange(e, index, "key")}
                       placeholder="parameter key"
+                      size="sm"
+                      autoComplete="off"
+                    />
+                  </td>
+                  <td>{renderValueField(param, index, "value", "parameter value")}</td>
+                  <td>
+                    <Form.Control
+                      value={param.value_type ?? ""}
+                      onChange={(e) => handleChange(e, index, "value_type")}
+                      placeholder="value type"
                       size="sm"
                     />
                   </td>
-                  <td>
-                    {renderValueField(param, index, "value", "parameter value")}
-                  </td>
-                  <td>
-                    <Form.Control
-                      value={param.value_type}
-                      onChange={(e) => handleChange(e, index, "value_type")}
-                      size="sm"
-                      placeholder="value type"
-                    >
-                    </Form.Control>
-                  </td>
-                  <td>
-                    {renderValueField(param, index, "default_value", "default value")}
-                  </td>
+                  <td>{renderValueField(param, index, "default_value", "default value")}</td>
                   <td>
                     <Form.Check
                       type="checkbox"
                       checked={param.is_required || false}
-                      onChange={(e) => {
-                        const syntheticEvent = {
-                          target: { value: e.target.checked }
-                        };
-                        handleChange(syntheticEvent, index, "is_required");
-                      }}
+                      onChange={(e) =>
+                        handleChange({ target: { value: e.target.checked } }, index, "is_required")
+                      }
                     />
                   </td>
-                  <td>
-                    {param.id ? <ParameterInfo parameter={param} updateMode /> : <ParameterInfo parameter={param} createMode />}
+                  <td className="d-flex gap-1">
+                    <ParameterInfo
+                      parameter={param}
+                      createMode={!param.id}
+                      updateMode={!!param.id}
+                    />
                     <Button
                       variant="danger"
                       size="sm"
@@ -171,14 +178,29 @@ export default function Parameters({ parameters, handleChange, onRemove, onAdd }
             )}
           </tbody>
         </Table>
-      </div>
+
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={() => handleAddParamLocal()}
+          type="button"
+        >
+          + Add Parameter
+        </Button>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setShowModal(false)}>Close</Button>
+        </Modal.Footer>
+      </Modal>
 
       <ScriptEditModal
         show={showScriptModal}
         onHide={() => setShowScriptModal(false)}
         value={getCurrentScriptValue()}
         onSave={handleScriptSave}
-        title={`Edit ${currentScriptField === 'value' ? 'Parameter Value' : 'Default Value'}`}
+        title={`Edit ${
+          currentScriptField === "value" ? "Parameter Value" : "Default Value"
+        }`}
       />
     </>
   );

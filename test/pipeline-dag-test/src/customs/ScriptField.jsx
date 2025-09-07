@@ -38,6 +38,7 @@ export default function ScriptField({ value, onChange, rows = 10, fontSize }) {
     <textarea
       name="script"
       value={value}
+      readOnly={isViewOnly}
       onChange={onChange}
       rows={textAreaRows}
       onKeyDown={handleKeyDown}
@@ -49,6 +50,6 @@ export default function ScriptField({ value, onChange, rows = 10, fontSize }) {
         width: "100%",
         fontFamily: "monospace",
       }}
-    />
+      />
   );
 }
