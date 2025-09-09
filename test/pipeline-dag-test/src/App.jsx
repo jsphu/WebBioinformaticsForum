@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import ToolPage from './components/ToolPage';
-import TopicsList from './components/TopicsList';
-import NewsSection from './components/NewsSection';
-import TopicDetail from './components/TopicDetail';
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
-import Flow from './customs/flow';
+import Layout from './components/layout/Layout';
+import ToolPage from './components/tools/ToolPage';
+import TopicsList from './components/topics/TopicsList';
+import TopicDetail from './components/topics/TopicDetail';
+import NewsSection from './components/news/NewsSection';
+import SignIn from './components/forms/SignIn';
+import SignUp from './components/forms/SignUp';
+import Flow from './components/editor/Editor';
 import { UserProvider } from './hooks/UserContext';
 import './App.css';
 
